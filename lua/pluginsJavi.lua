@@ -17,10 +17,25 @@ vim.opt.rtp:prepend(lazypath)
 
 -- inicializamos plugins de lazy
 require("lazy").setup({
-	{
+	{   -- Colorscheme
 		"rebelot/kanagawa.nvim",
 		config = function()
 			vim.cmd.colorscheme("kanagawa-wave")
+		end,
+	},
+	{   -- Treesitter (parsers)
+		"nvim-treesitter/nvim-treesitter",
+		config = function()
+			require("nvim-treesitter.configs").setup({
+				-- First 5 crucial to have
+				ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "java", "bash", "dart", "json" },
+
+				auto_install = true,
+
+				highlight = {
+					enable = true,
+				},
+			})
 		end,
 	},
 })
