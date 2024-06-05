@@ -14,3 +14,6 @@ vim.opt.inccommand = "split" -- muestra todas las lineas a cambiar juntas en un 
 vim.opt.ignorecase = true -- para que muestre autocompletado de comandos siempre
 vim.opt.termguicolors = true -- para que se muestren más colores n terminales modernas
 
+-- Keybindings --
+-- ----------- --
+vim.g.mapleader = " " -- variable global vim "leader" es espacio 
