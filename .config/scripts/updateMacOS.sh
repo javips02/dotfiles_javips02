@@ -14,8 +14,8 @@ echo "******************************"
 #  yabai --start-service
 
 #Actualizacion de los macports
-echo "******************************"
-echo "*   Paquetes de Macports:    *"
-echo "******************************"
-sudo port selfupdate
-sudo port upgrade outdated
+#echo "******************************"
+#echo "*   Paquetes de Macports:    *"
+#echo "******************************"
+#sudo port selfupdate
+#sudo port upgrade outdated
