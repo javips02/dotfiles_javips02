@@ -20,6 +20,9 @@ require("lazy").setup({
 	{   -- Colorscheme
 		"rebelot/kanagawa.nvim",
 		config = function()
+			require('kanagawa').setup({
+				transparent = true,  -- set background color to transparent
+			})
 			vim.cmd.colorscheme("kanagawa-wave")
 		end,
 	},
