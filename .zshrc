@@ -2,7 +2,6 @@
 eval "$(starship init zsh)"
 eval "$(rbenv init - zsh)"
 #Unizar
-alias fastfetch="clear && fastfetch --logo ~/.config/fastfetch/logo.png --logo-type kitty-direct --logo-width 50 --logo-height 20"
 alias v="nvim"
 alias hendrix="ssh a815877@hendrix-ssh.cps.unizar.es"
 alias lab000="ssh a815877@lab000.cps.unizar.es"

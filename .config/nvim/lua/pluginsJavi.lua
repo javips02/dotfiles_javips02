@@ -17,13 +17,74 @@ vim.opt.rtp:prepend(lazypath)
 
 -- inicializamos plugins de lazy
 require("lazy").setup({
-	{   -- Colorscheme
-		"rebelot/kanagawa.nvim",
+  	{
+		'loctvl842/monokai-pro.nvim',
+		dependencies = { 'nvim-tree/nvim-web-devicons' },
 		config = function()
-			require('kanagawa').setup({
-				transparent = true,  -- set background color to transparent
+			require("monokai-pro").setup({
+				transparent_background = true,
+				terminal_colors = true,
+				devicons = false, -- highlight the icons of `nvim-web-devicons`
+				filter = "pro", -- classic | octagon | pro | machine | ristretto | spectrum
+				plugins = {
+				  bufferline = {
+					underline_selected = false,
+					underline_visible = false,
+				  },
+				  indent_blankline = {
+					context_highlight = "default", -- default | pro
+					context_start_underline = false,
+				  },
+				},
+			  })
+			  -- lua
+			  vim.cmd([[colorscheme monokai-pro]])
+		end,
+	},
+	{
+    	'nvim-lualine/lualine.nvim',
+    	dependencies = { 'nvim-tree/nvim-web-devicons' },
+		config = function()
+			require('lualine').setup ({
+				options = {
+				icons_enabled = true,
+				theme = 'auto',
+				component_separators = { left = '', right = ''},
+				section_separators = { left = '', right = ''},
+				disabled_filetypes = {
+					statusline = {},
+					winbar = {},
+				},
+				ignore_focus = {},
+				always_divide_middle = true,
+				globalstatus = false,
+				refresh = {
+					statusline = 1000,
+					tabline = 1000,
+					winbar = 1000,
+				}
+				},
+				sections = {
+				lualine_a = {'mode'},
+				lualine_b = {'branch', 'diff', 'diagnostics'},
+				lualine_c = {'filename'},
+				lualine_x = {'encoding', 'fileformat', 'filetype'},
+				lualine_y = {'progress'},
+				lualine_z = {'location'}
+				},
+				inactive_sections = {
+				lualine_a = {},
+				lualine_b = {},
+				lualine_c = {'filename'},
+				lualine_x = {'location'},
+				lualine_y = {},
+				lualine_z = {}
+				},
+				tabline = {},
+				winbar = {},
+				inactive_winbar = {},
+				extensions = {}
 			})
-			vim.cmd.colorscheme("kanagawa-wave")
 		end,
 	},
 	{   -- Treesitter (parsers)
@@ -72,6 +133,5 @@ require("lazy").setup({
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-textobjects",
-
 	},
 })
