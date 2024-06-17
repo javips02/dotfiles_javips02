@@ -18,7 +18,7 @@ alias update="~/.config/scripts/updateMacOS.sh"
 alias sshcasa="ssh -Y javi@85.251.107.114"
 #Variables de entorno PATH
 export PATH="/opt/homebrew/bin:$PATH"
-export PATH="/Users/javi/software/flutterSDK/flutter/bin:$PATH"
+export PATH="~/software/flutterSDK/flutter/bin:$PATH"
 export PATH="/opt/homebrew/Cellar/openjdk/21.0.1/bin:$PATH"
 export JAVA_HOME="/opt/homebrew/Cellar/openjdk/21.0.1"
 export PATH="/usr/local/mysql/bin:$PATH"
@@ -33,7 +33,7 @@ export LESS_TERMCAP_se=$'\e[0m'
 export LESS_TERMCAP_so=$'\e[01;33m'
 export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_us=$'\e[1;4;31m'
-
+# Configuración de Perl para dependencias de ruby
 PATH="/Users/javi/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/Users/javi/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/Users/javi/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
