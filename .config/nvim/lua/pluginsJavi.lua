@@ -134,4 +134,8 @@ require("lazy").setup({
 	{
 		"nvim-treesitter/nvim-treesitter-textobjects",
 	},
+	{ -- telscope: para fuzzyfinding de archivos TODO: revisar fxf-native para nvim para mejor rendimiento con el fuzzyfinding
+		'nvim-telescope/telescope.nvim',
+		dependencies = { 'nvim-lua/plenary.nvim','BurntSushi/ripgrep' }
+	},
 })
