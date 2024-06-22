@@ -136,6 +136,35 @@ require("lazy").setup({
 	},
 	{ -- telscope: para fuzzyfinding de archivos TODO: revisar fxf-native para nvim para mejor rendimiento con el fuzzyfinding
 		'nvim-telescope/telescope.nvim',
-		dependencies = { 'nvim-lua/plenary.nvim','BurntSushi/ripgrep' }
+		dependencies = {'nvim-lua/plenary.nvim'},
+		config = function()
+			local telescope = require('telescope')
+			local actions = require('telescope.actions')
+			require('telescope').setup{
+				defaults = {
+					-- Default configuration for telescope goes here:
+					-- config_key = value,
+					mappings = {
+						i = {
+							-- map actions.which_key to <C-h> (default: <C-/>)
+							-- actions.which_key shows the mappings for your picker,
+							-- e.g. git_{create, delete, ...}_branch for the git_branches picker
+							["<C-h>"] = "which_key"
+						}
+					}
+				},
+				extensions = {}
+			}
+			
+			-- Configurar keybindings para usar Telescope
+			local keymap = vim.api.nvim_set_keymap
+			local opts = { noremap = true, silent = true }
+
+			-- Keybindings para diferentes funcionalidades de Telescope
+			keymap('n', '<leader>ff', '<cmd>Telescope find_files<CR>', opts)
+			keymap('n', '<leader>fg', '<cmd>Telescope live_grep<CR>', opts)
+			keymap('n', '<leader>fb', '<cmd>Telescope buffers<CR>', opts)
+			keymap('n', '<leader>fh', '<cmd>Telescope help_tags<CR>', opts)
+		end,
 	},
 })
