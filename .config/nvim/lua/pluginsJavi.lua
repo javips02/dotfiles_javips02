@@ -93,27 +93,28 @@ require("lazy").setup({
 			require("nvim-treesitter.configs").setup({
 				-- First 5 crucial to have
 				ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
-
-				auto_install = true, -- si entras en un fichero y no tienes su parser, se instala auto.
+				auto_install = true, -- Automatically install missing parsers when entering buffer
 
 				highlight = {
 					enable = true,
+					additional_vim_regex_highlighting = false,
 				},
+
 				incremental_selection = {
-					-- para seleccionar texto en funcion del texto
 					enable = true,
 					keymaps = {
 						init_selection = "<Leader>ss", -- selection start
 						node_incremental = "<Leader>si", -- selection increment
-						scope_incremental = "<Leader>sc", -- select scope 
+						scope_incremental = "<Leader>sc", -- select scope
 						node_decremental = "<Leader>sd", -- decrease selection
 					},
 				},
-				textobjects = { -- para mejorar la comprensión de contextos de treesitter al seleccionar
+
+				textobjects = {
 					select = {
 						enable = true,
-						lookahead = true, -- mueve el cursor a la siguiente función si la borras
-						keymaps = { -- mirar grupos en el archivo textobjects.scm
+						lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+						keymaps = {
 							["af"] = "@function.outer",
 							["if"] = "@function.inner",
 							["ac"] = "@class.outer",
@@ -136,7 +137,7 @@ require("lazy").setup({
 	},
 	{ -- telscope: para fuzzyfinding de archivos TODO: revisar fxf-native para nvim para mejor rendimiento con el fuzzyfinding
 		'nvim-telescope/telescope.nvim',
-		dependencies = {'nvim-lua/plenary.nvim'},
+		dependencies = {'nvim-lua/plenary.nvim', {"nvim-telescope/telescope-fzf-native.nvim", build = "make" }, 'nvim-tree/nvim-web-devicons'},
 		config = function()
 			local telescope = require('telescope')
 			local actions = require('telescope.actions')
@@ -172,5 +173,174 @@ require("lazy").setup({
 		config = function()
 			require('gitsigns').setup()
 		end,
+	},
+	{ --cmp: for auto completions
+		'hrsh7th/nvim-cmp',
+		event = 'InsertEnter',
+		dependencies = {
+			'hrsh7th/cmp-buffer',         -- Fuente para texto en el buffer
+			'hrsh7th/cmp-path',           -- Fuente para rutas del sistema de archivos
+			{ 'L3MON4D3/LuaSnip',         -- Motor de snippets
+			build = 'make install_jsregexp' },
+			'saadparwaiz1/cmp_luasnip',   -- Extensión para integrar Luasnip con cmp
+			'rafamadriz/friendly-snippets', -- Snippets útiles
+			'onsails/lspkind.nvim',       -- Iconos tipo VS Code en el menú de autocompletado
+		},
+		config = function()
+			local cmp = require('cmp')
+			local luasnip = require('luasnip')
+			local lspkind = require('lspkind')
+
+			require('luasnip.loaders.from_vscode').lazy_load()
+
+			cmp.setup({
+				completion = {
+					completeopt = 'menu,menuone,preview,noselect',
+				},
+				snippet = {
+					expand = function(args)
+						luasnip.lsp_expand(args.body)
+					end,
+				},
+				mapping = {
+					['<C-k>'] = cmp.mapping.select_prev_item(),
+					['<C-j>'] = cmp.mapping.select_next_item(),
+					['<C-b>'] = cmp.mapping.scroll_docs(-4),
+					['<C-f>'] = cmp.mapping.scroll_docs(4),
+					['<C-Space>'] = cmp.mapping.complete(),
+					['<C-e>'] = cmp.mapping.abort(),
+					['<CR>'] = cmp.mapping.confirm({ select = false }),
+				},
+				sources = cmp.config.sources({
+					{ name = 'nvim_lsp' },
+					{ name = 'luasnip' },
+					{ name = 'buffer' },
+					{ name = 'path' },
+				}),
+				formatting = {
+					format = lspkind.cmp_format({ maxwidth = 50, ellipsis_char = '...' }),
+				},
+			})
+		end,
+	},
+	{ --mason (instalacion atomatica de dependencias lsp
+		'williamboman/mason.nvim',
+		dependencies = {
+			'williamboman/mason-lspconfig.nvim',
+			'WhoIsSethDaniel/mason-tool-installer.nvim',
+		},
+		config = function()
+			-- Importar mason
+			local mason = require("mason")
+			-- Importar mason-lspconfig
+			local mason_lspconfig = require("mason-lspconfig")
+			-- Importar mason-tool-installer
+			local mason_tool_installer = require("mason-tool-installer")
+			-- Configurar mason con iconos personalizados
+			mason.setup({
+				ui = {
+					icons = {
+						package_installed = "✓",
+						package_pending = "➜",
+						package_uninstalled = "✗",
+					},
+				},
+			})
+			-- Configurar mason-lspconfig con servidores LSP para instalar
+			mason_lspconfig.setup({
+    			ensure_installed = {},
+			})
+			-- Configurar mason-tool-installer con herramientas para instalar
+			mason_tool_installer.setup({
+				ensure_installed = {
+					"prettier", -- Formateador prettier
+					"stylua", -- Formateador lua
+				},
+			})
+		end,
+	},
+	{ -- lsp
+		  'neovim/nvim-lspconfig',
+        event = { 'BufReadPre', 'BufNewFile' },
+        dependencies = {
+            'hrsh7th/cmp-nvim-lsp',
+            { 'antosha417/nvim-lsp-file-operations', config = true },
+            { 'folke/neodev.nvim', opts = {} },
+        },
+        config = function()
+            -- Importar lspconfig plugin
+            local lspconfig = require('lspconfig')
+
+            -- Importar mason-lspconfig plugin
+            local mason_lspconfig = require('mason-lspconfig')
+
+            -- Importar cmp-nvim-lsp plugin
+            local cmp_nvim_lsp = require('cmp_nvim_lsp')
+
+            local keymap = vim.keymap -- Para concisión
+
+            vim.api.nvim_create_autocmd('LspAttach', {
+                group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+                callback = function(ev)
+                    -- Mapeos locales de buffer
+                    local opts = { buffer = ev.buf, silent = true }
+                    -- Asignar keybinds
+                    opts.desc = 'Show LSP references'
+                    keymap.set('n', 'gR', '<cmd>Telescope lsp_references<CR>', opts) -- Mostrar referencias
+
+                    opts.desc = 'Go to declaration'
+                    keymap.set('n', 'gD', vim.lsp.buf.declaration, opts) -- Ir a la declaración
+
+                    opts.desc = 'Show LSP definitions'
+                    keymap.set('n', 'gd', '<cmd>Telescope lsp_definitions<CR>', opts) -- Mostrar definiciones
+
+                    opts.desc = 'Show LSP implementations'
+                    keymap.set('n', 'gi', '<cmd>Telescope lsp_implementations<CR>', opts) -- Mostrar implementaciones
+
+                    opts.desc = 'Show LSP type definitions'
+                    keymap.set('n', 'gt', '<cmd>Telescope lsp_type_definitions<CR>', opts) -- Mostrar definiciones de tipo
+
+                    opts.desc = 'See available code actions'
+                    keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts) -- Ver acciones de código disponibles
+
+                    opts.desc = 'Smart rename'
+                    keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts) -- Renombrar de manera inteligente
+
+                    opts.desc = 'Show buffer diagnostics'
+                    keymap.set('n', '<leader>D', '<cmd>Telescope diagnostics bufnr=0<CR>', opts) -- Mostrar diagnósticos del buffer
+
+                    opts.desc = 'Show line diagnostics'
+                    keymap.set('n', '<leader>d', vim.diagnostic.open_float, opts) -- Mostrar diagnósticos de línea
+
+                    opts.desc = 'Go to previous diagnostic'
+                    keymap.set('n', '[d', vim.diagnostic.goto_prev, opts) -- Ir al diagnóstico anterior
+
+                    opts.desc = 'Go to next diagnostic'
+                    keymap.set('n', ']d', vim.diagnostic.goto_next, opts) -- Ir al siguiente diagnóstico
+
+                    opts.desc = 'Show documentation for what is under cursor'
+                    keymap.set('n', 'K', vim.lsp.buf.hover, opts) -- Mostrar documentación para lo que está bajo el cursor
+                end,
+            })
+
+            -- Habilitar autocompletado (asignar a cada configuración del servidor lsp)
+            local capabilities = cmp_nvim_lsp.default_capabilities()
+
+            -- Cambiar los símbolos de Diagnóstico en la columna de signos (gutter)
+            local signs = { Error = ' ', Warn = ' ', Hint = '󰠠 ', Info = ' ' }
+            for type, icon in pairs(signs) do
+                local hl = 'DiagnosticSign' .. type
+                vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
+            end
+
+            mason_lspconfig.setup_handlers({
+				-- Manejador por defecto para los servidores instalados
+                function(server_name)
+                    lspconfig[server_name].setup({
+						capabilities = capabilities,
+					})
+				end,
+			})
+        end,
 	},
 })
