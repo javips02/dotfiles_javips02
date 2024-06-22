@@ -167,4 +167,10 @@ require("lazy").setup({
 			keymap('n', '<leader>fh', '<cmd>Telescope help_tags<CR>', opts)
 		end,
 	},
+	{
+		'lewis6991/gitsigns.nvim',
+		config = function()
+			require('gitsigns').setup()
+		end,
+	},
 })
