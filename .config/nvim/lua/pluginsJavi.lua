@@ -94,7 +94,6 @@ require("lazy").setup({
 				-- First 5 crucial to have
 				ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
 				auto_install = true, -- Automatically install missing parsers when entering buffer
-
 				highlight = {
 					enable = true,
 					additional_vim_regex_highlighting = false,
@@ -223,19 +222,30 @@ require("lazy").setup({
 			})
 		end,
 	},
-	{ --mason (instalacion atomatica de dependencias lsp
+	{ -- mason (gestión automática de dependencias LSP)
 		'williamboman/mason.nvim',
 		dependencies = {
 			'williamboman/mason-lspconfig.nvim',
-			'WhoIsSethDaniel/mason-tool-installer.nvim',
+			'neovim/nvim-lspconfig',
+			'hrsh7th/nvim-cmp',               -- Autocompletado
+			'hrsh7th/cmp-buffer',             -- Fuente para texto en el buffer
+			'hrsh7th/cmp-path',               -- Fuente para rutas del sistema de archivos
+			'hrsh7th/cmp-nvim-lsp',           -- Fuente para LSP
+			'saadparwaiz1/cmp_luasnip',       -- Integración con luasnip
+			'L3MON4D3/LuaSnip',               -- Motor de snippets
+			'rafamadriz/friendly-snippets',   -- Colección de snippets
+			'onsails/lspkind.nvim',           -- Iconos en el menú de autocompletado
 		},
 		config = function()
-			-- Importar mason
+			-- Importar los plugins
 			local mason = require("mason")
-			-- Importar mason-lspconfig
 			local mason_lspconfig = require("mason-lspconfig")
-			-- Importar mason-tool-installer
-			local mason_tool_installer = require("mason-tool-installer")
+			local lspconfig = require("lspconfig")
+			local cmp = require('cmp')
+			local luasnip = require('luasnip')
+			local lspkind = require('lspkind')
+			local cmp_nvim_lsp = require('cmp_nvim_lsp')
+
 			-- Configurar mason con iconos personalizados
 			mason.setup({
 				ui = {
@@ -246,101 +256,93 @@ require("lazy").setup({
 					},
 				},
 			})
+
 			-- Configurar mason-lspconfig con servidores LSP para instalar
 			mason_lspconfig.setup({
-    			ensure_installed = {},
+				ensure_installed = {},
+				automatic_installation = true,
 			})
-			-- Configurar mason-tool-installer con herramientas para instalar
-			mason_tool_installer.setup({
-				ensure_installed = {
-					"prettier", -- Formateador prettier
-					"stylua", -- Formateador lua
-				},
-			})
-		end,
-	},
-	{ -- lsp
-		  'neovim/nvim-lspconfig',
-        event = { 'BufReadPre', 'BufNewFile' },
-        dependencies = {
-            'hrsh7th/cmp-nvim-lsp',
-            { 'antosha417/nvim-lsp-file-operations', config = true },
-            { 'folke/neodev.nvim', opts = {} },
-        },
-        config = function()
-            -- Importar lspconfig plugin
-            local lspconfig = require('lspconfig')
 
-            -- Importar mason-lspconfig plugin
-            local mason_lspconfig = require('mason-lspconfig')
-
-            -- Importar cmp-nvim-lsp plugin
-            local cmp_nvim_lsp = require('cmp_nvim_lsp')
-
-            local keymap = vim.keymap -- Para concisión
-
-            vim.api.nvim_create_autocmd('LspAttach', {
-                group = vim.api.nvim_create_augroup('UserLspConfig', {}),
-                callback = function(ev)
-                    -- Mapeos locales de buffer
-                    local opts = { buffer = ev.buf, silent = true }
-                    -- Asignar keybinds
-                    opts.desc = 'Show LSP references'
-                    keymap.set('n', 'gR', '<cmd>Telescope lsp_references<CR>', opts) -- Mostrar referencias
-
-                    opts.desc = 'Go to declaration'
-                    keymap.set('n', 'gD', vim.lsp.buf.declaration, opts) -- Ir a la declaración
-
-                    opts.desc = 'Show LSP definitions'
-                    keymap.set('n', 'gd', '<cmd>Telescope lsp_definitions<CR>', opts) -- Mostrar definiciones
-
-                    opts.desc = 'Show LSP implementations'
-                    keymap.set('n', 'gi', '<cmd>Telescope lsp_implementations<CR>', opts) -- Mostrar implementaciones
-
-                    opts.desc = 'Show LSP type definitions'
-                    keymap.set('n', 'gt', '<cmd>Telescope lsp_type_definitions<CR>', opts) -- Mostrar definiciones de tipo
-
-                    opts.desc = 'See available code actions'
-                    keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts) -- Ver acciones de código disponibles
-
-                    opts.desc = 'Smart rename'
-                    keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts) -- Renombrar de manera inteligente
-
-                    opts.desc = 'Show buffer diagnostics'
-                    keymap.set('n', '<leader>D', '<cmd>Telescope diagnostics bufnr=0<CR>', opts) -- Mostrar diagnósticos del buffer
-
-                    opts.desc = 'Show line diagnostics'
-                    keymap.set('n', '<leader>d', vim.diagnostic.open_float, opts) -- Mostrar diagnósticos de línea
-
-                    opts.desc = 'Go to previous diagnostic'
-                    keymap.set('n', '[d', vim.diagnostic.goto_prev, opts) -- Ir al diagnóstico anterior
-
-                    opts.desc = 'Go to next diagnostic'
-                    keymap.set('n', ']d', vim.diagnostic.goto_next, opts) -- Ir al siguiente diagnóstico
-
-                    opts.desc = 'Show documentation for what is under cursor'
-                    keymap.set('n', 'K', vim.lsp.buf.hover, opts) -- Mostrar documentación para lo que está bajo el cursor
-                end,
-            })
-
-            -- Habilitar autocompletado (asignar a cada configuración del servidor lsp)
-            local capabilities = cmp_nvim_lsp.default_capabilities()
-
-            -- Cambiar los símbolos de Diagnóstico en la columna de signos (gutter)
-            local signs = { Error = ' ', Warn = ' ', Hint = '󰠠 ', Info = ' ' }
-            for type, icon in pairs(signs) do
-                local hl = 'DiagnosticSign' .. type
-                vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
-            end
-
-            mason_lspconfig.setup_handlers({
-				-- Manejador por defecto para los servidores instalados
-                function(server_name)
-                    lspconfig[server_name].setup({
+			-- Configurar manejadores para servidores LSP
+			local capabilities = cmp_nvim_lsp.default_capabilities()
+			mason_lspconfig.setup_handlers({
+				function(server_name)
+					lspconfig[server_name].setup({
 						capabilities = capabilities,
 					})
 				end,
 			})
-        end,
+
+			-- Configurar nvim-cmp
+			require('luasnip.loaders.from_vscode').lazy_load()
+			cmp.setup({
+				completion = {
+					completeopt = 'menu,menuone,preview,noselect',
+				},
+				snippet = {
+					expand = function(args)
+						luasnip.lsp_expand(args.body)
+					end,
+				},
+				mapping = {
+					['<C-k>'] = cmp.mapping.select_prev_item(),
+					['<C-j>'] = cmp.mapping.select_next_item(),
+					['<C-b>'] = cmp.mapping.scroll_docs(-4),
+					['<C-f>'] = cmp.mapping.scroll_docs(4),
+					['<C-Space>'] = cmp.mapping.complete(),
+					['<C-e>'] = cmp.mapping.abort(),
+					['<CR>'] = cmp.mapping.confirm({ select = false }),
+				},
+				sources = cmp.config.sources({
+					{ name = 'nvim_lsp' },
+					{ name = 'luasnip' },
+					{ name = 'buffer' },
+					{ name = 'path' },
+				}),
+				formatting = {
+					format = lspkind.cmp_format({ maxwidth = 50, ellipsis_char = '...' }),
+				},
+			})
+
+			-- Configurar keymaps y autocmd para LSP
+			local keymap = vim.keymap
+			vim.api.nvim_create_autocmd('LspAttach', {
+				group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+				callback = function(ev)
+					local opts = { buffer = ev.buf, silent = true }
+					opts.desc = 'Show LSP references'
+					keymap.set('n', 'gR', '<cmd>Telescope lsp_references<CR>', opts)
+					opts.desc = 'Go to declaration'
+					keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+					opts.desc = 'Show LSP definitions'
+					keymap.set('n', 'gd', '<cmd>Telescope lsp_definitions<CR>', opts)
+					opts.desc = 'Show LSP implementations'
+					keymap.set('n', 'gi', '<cmd>Telescope lsp_implementations<CR>', opts)
+					opts.desc = 'Show LSP type definitions'
+					keymap.set('n', 'gt', '<cmd>Telescope lsp_type_definitions<CR>', opts)
+					opts.desc = 'See available code actions'
+					keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
+					opts.desc = 'Smart rename'
+					keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+					opts.desc = 'Show buffer diagnostics'
+					keymap.set('n', '<leader>D', '<cmd>Telescope diagnostics bufnr=0<CR>', opts)
+					opts.desc = 'Show line diagnostics'
+					keymap.set('n', '<leader>d', vim.diagnostic.open_float, opts)
+					opts.desc = 'Go to previous diagnostic'
+					keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
+					opts.desc = 'Go to next diagnostic'
+					keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
+					opts.desc = 'Show documentation for what is under cursor'
+					keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+				end,
+			})
+
+			-- Cambiar los símbolos de Diagnóstico en la columna de signos (gutter)
+			local signs = { Error = ' ', Warn = ' ', Hint = '󰠠 ', Info = ' ' }
+			for type, icon in pairs(signs) do
+				local hl = 'DiagnosticSign' .. type
+				vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
+			end
+		end,
 	},
 })
