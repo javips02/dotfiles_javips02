@@ -235,6 +235,10 @@ require("lazy").setup({
 			'L3MON4D3/LuaSnip',               -- Motor de snippets
 			'rafamadriz/friendly-snippets',   -- Colección de snippets
 			'onsails/lspkind.nvim',           -- Iconos en el menú de autocompletado
+			'jose-elias-alvarez/null-ls.nvim',-- Integración con linters y formatters
+			'jay-babu/mason-null-ls.nvim',    -- Mason integración con null-ls
+			'mfussenegger/nvim-dap',          -- Depuración
+			'jay-babu/mason-nvim-dap.nvim'    -- Mason integración con nvim-dap
 		},
 		config = function()
 			-- Importar los plugins
@@ -245,6 +249,8 @@ require("lazy").setup({
 			local luasnip = require('luasnip')
 			local lspkind = require('lspkind')
 			local cmp_nvim_lsp = require('cmp_nvim_lsp')
+			local null_ls = require("null-ls")
+			local dap = require('dap')
 
 			-- Configurar mason con iconos personalizados
 			mason.setup({
@@ -259,8 +265,67 @@ require("lazy").setup({
 
 			-- Configurar mason-lspconfig con servidores LSP para instalar
 			mason_lspconfig.setup({
-				ensure_installed = {},
+				ensure_installed = {
+					'clangd',        -- C/C++
+					'pyright',       -- Python
+					'jdtls',         -- Java
+					'kotlin_language_server',  -- Kotlin
+					'bashls',        -- Bash
+					'solargraph',    -- Ruby
+					'jsonls',        -- JSON
+					'lemminx',       -- XML
+					'html',          -- HTML
+					'cssls',         -- CSS
+					'sqlls',         -- SQL
+					'sumneko_lua',   -- Lua
+					'gopls',         -- Go
+				},
 				automatic_installation = true,
+			})
+
+			-- DAP setup
+			require('mason-nvim-dap').setup {
+				ensure_installed = {
+					'codelldb',      -- C/C++
+					'debugpy',       -- Python
+					'java-debug-adapter', -- Java
+					'java-test',     -- Java testing
+					'bash-debug-adapter', -- Bash
+					'ruby-debug-ide', -- Ruby
+					'delve',         -- Go
+				},
+				automatic_installation = true,
+			}
+
+			-- Linters and formatters setup
+			require('mason-null-ls').setup {
+				ensure_installed = {
+					'clang-format',  -- C/C++
+					'black',         -- Python
+					'prettier',      -- HTML, CSS, JSON
+					'eslint',        -- JavaScript
+					'stylua',        -- Lua
+					'gofmt',         -- Go
+					'rubocop',       -- Ruby
+					'shellcheck',    -- Bash
+					'sqlfluff',      -- SQL
+				},
+				automatic_installation = true,
+			}
+
+			-- Configuración de null-ls
+			null_ls.setup({
+				sources = {
+					null_ls.builtins.formatting.clang_format,
+					null_ls.builtins.formatting.black,
+					null_ls.builtins.formatting.prettier,
+					null_ls.builtins.diagnostics.eslint,
+					null_ls.builtins.formatting.stylua,
+					null_ls.builtins.formatting.gofmt,
+					null_ls.builtins.diagnostics.rubocop,
+					null_ls.builtins.diagnostics.shellcheck,
+					null_ls.builtins.formatting.sqlfluff,
+				},
 			})
 
 			-- Configurar manejadores para servidores LSP
