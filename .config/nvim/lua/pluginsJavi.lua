@@ -268,6 +268,7 @@ require("lazy").setup({
 				ensure_installed = {
 					'clangd',        -- C/C++
 					'pyright',       -- Python
+					'lua_ls',   	 -- Lua
 					'jdtls',         -- Java
 					'kotlin_language_server',  -- Kotlin
 					'bashls',        -- Bash
@@ -275,9 +276,7 @@ require("lazy").setup({
 					'jsonls',        -- JSON
 					'lemminx',       -- XML
 					'html',          -- HTML
-					'cssls',         -- CSS
 					'sqlls',         -- SQL
-					'sumneko_lua',   -- Lua
 					'gopls',         -- Go
 				},
 				automatic_installation = true,
