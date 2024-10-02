@@ -1,18 +1,22 @@
-#
-# ~/.bashrc
-#
+# .bashrc
 
-# If not running interactively, don't do anything
-[[ $- != *i* ]] && return
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
-PS1='[\u@\h \W]\$ '
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+    . /etc/bashrc
+fi
 
-# Alias personales
+# User specific environment
+if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
+# Sección de aliases #
+# LOCAL #
 alias v="nvim"
-alias update="~/.config/scripts/updateArchLinux.sh"
-# Alias de Unizar
-alias central="ssh a815877@central.cps.unizar.es"
+
+# UNIZAR #
 alias hendrix="ssh a815877@hendrix-ssh.cps.unizar.es"
-# Starship shell prompt
-eval "$(starship init bash)"
+alias central="ssh a815877@central.cps.unizar.es"
+# Variables de entorno
+export LIBVA_DRIVER_NAME=iHD
