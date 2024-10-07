@@ -1,0 +1,41 @@
+/* power-menu.css */
+
+/* General window style */
+#window {
+    background-color: rgba(30, 30, 46, 0.8); /* Fondo con transparencia */
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    font-size: 1.2rem;
+}
+
+/* Outer box */
+#outer-box {
+    padding: 1rem;
+}
+
+/* Entry style */
+#window #outer-box #scroll #inner-box #entry {
+    color: rgba(255, 255, 255, 0.9); /* Texto blanco */
+    background-color: rgba(30, 30, 46, 0.4); /* Fondo con transparencia */
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Selected entry style */
+#window #outer-box #scroll #inner-box #entry:selected {
+    background-color: rgba(138, 43, 226, 1); /* Fondo violeta llamativo */
+}
+
+/* Entry icon style */
+#window #outer-box #scroll #inner-box #entry #img {
+    width: 2rem; /* Tamaño grande para iconos */
+    margin-right: 1rem; /* Espacio entre icono y texto */
+}
+
+/* Entry text style */
+#window #outer-box #scroll #inner-box #entry #text {
+    flex: 1; /* Ocupa todo el espacio */
+    font-size: 1.5rem; /* Tamaño de texto más grande */
+}
