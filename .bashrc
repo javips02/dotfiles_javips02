@@ -20,3 +20,5 @@ alias hendrix="ssh a815877@hendrix-ssh.cps.unizar.es"
 alias central="ssh a815877@central.cps.unizar.es"
 # Variables de entorno
 export LIBVA_DRIVER_NAME=iHD
+
+eval "$(starship init bash)"
