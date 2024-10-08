@@ -40,8 +40,8 @@
             "7": "7",
             "8": "8",
             "9": "9",
-            "focused": "",
-            "urgent": "",
+            "active": "󱓻",
+            "urgent": "󱓻"
         },
         "persistent_workspaces": {
             "1": [],
@@ -88,8 +88,8 @@
             "headphone": "",
             "default": ["󰖀","󰕾",""]
         },
-        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-        "scroll-step": 3
+        "on-click": "pamixer -t",
+        "scroll-step": 1
     },
     "custom/logo": {
         "format": "  ",
