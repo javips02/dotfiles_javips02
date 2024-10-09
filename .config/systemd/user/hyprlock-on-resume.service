@@ -1,0 +1,10 @@
+[Unit]
+Description=Run hyprlock on resume
+After=supend.target
+
+[Service]
+ExecStart=/usr/bin/hyprlock
+Type=oneshot
+
+[Install]
+WantedBy=suspend.target
