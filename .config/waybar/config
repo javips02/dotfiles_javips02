@@ -147,6 +147,6 @@
 	"custom/power": {
 		"format": "󰤆",
 		"tooltip": false,
-		"on-click": "echo -e 'Block\nShutdown\nLog Out\nSuspend' | wofi --dmenu --insensitive --width 300 --height 300 | ~/.config/wofi/powerMenu/powerMenu.sh"
+		"on-click":"echo -e '󰌾  Block\n  Shutdown\n󰩈  Log Out\n󰤄  Suspend' | wofi --dmenu --insensitive | xargs -r ~/.config/wofi/powerMenu/powerMenu.sh"
 	}
 }
