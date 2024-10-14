@@ -4,11 +4,11 @@
 SYSTEMCTL=/usr/bin/systemctl
 
 # Comprueba que se pase un argumento
-if [ -z "$1" ]; then
+if [ -z "$2" ]; then
     exit 1
 fi
 
-case "$1" in
+case "$2" in
     Block)
         hyprlock
         ;;
