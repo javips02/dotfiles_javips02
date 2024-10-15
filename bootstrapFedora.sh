@@ -18,4 +18,4 @@ echo "To install plugins, open tmux and press 'Ctrl + b' followed by 'I'."
 
 # Install hyprland deps
 sudo dnf update
-sudo dnf install polkit-gnome gnome-keyring qt5-qtwayland qt6-qtwayland mako xdg-desktop-portal-hyprland hyprpaper waybar hypridle xwaylandvideobridge grim slurp
+sudo dnf install polkit-gnome gnome-keyring qt5-qtwayland qt6-qtwayland mako xdg-desktop-portal-hyprland hyprpaper waybar hypridle xwaylandvideobridge grim slurp NetworkManager-tui
