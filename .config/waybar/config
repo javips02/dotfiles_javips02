@@ -19,6 +19,11 @@
         "battery",
         "custom/power"
     ],
+    "cpu": {
+        "interval": 5,
+        "format": " {usage}%",
+        "format-float": "{:0.0f}", 
+    },
     "wlr/taskbar": {
         "format": "{icon}",
         "on-click": "activate",
