@@ -20,5 +20,6 @@ alias hendrix="ssh a815877@hendrix-ssh.cps.unizar.es"
 alias central="ssh a815877@central.cps.unizar.es"
 # Variables de entorno
 export LIBVA_DRIVER_NAME=iHD
-
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-17.0.12.0.7-2.fc40.x86_64
+export PATH=$JAVA_HOME/bin:$PATH
 eval "$(starship init bash)"
