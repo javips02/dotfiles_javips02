@@ -20,14 +20,14 @@ yay -Y --devel --save
 yay -S greetd-tuigreet
 sudo systemctl enable greetd
 #Hyprland ecosistem
-yay -S hyprland gnome-keyring qt5-wayland qt6-wayland mako xdg-desktop-portal-hyprland hyprshot waybar hypridle xwayland hyprpaper networkmanager qt5-base qt5-declarative qt6-base qt6-quickcontrols2 qt6-declarative ttf-jetbrains-mono-nerd wofi gnome-themes-extra hyprlock
+yay -S hyprland gnome-keyring qt5-wayland qt6-wayland mako xdg-desktop-portal-hyprland hyprshot waybar hypridle xwayland hyprpaper networkmanager qt5-base qt5-declarative qt6-base qt6-quickcontrols2 qt6-declarative ttf-jetbrains-mono-nerd wofi gnome-themes-extra hyprlock brightnessctl
 #polkit
 yay -S hyprpolkitagent-git
 
 # Development Utils #
-yay -S jetbrains-toolbox visual-studio-code-bin qemu-full virt-manager libvirt
-sudo systemctl enable libvirtd
-sudo usermod -aG qemu libvirt javi
+yay -S jetbrains-toolbox visual-studio-code-bin qemu-full virt-manager libvirt swtpm docker virtiofsd
+sudo systemctl enable libvirtd docker containerd
+sudo usermod -aG qemu libvirt docker javi
 # Flatpak section #
 yay -S flatpak
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -39,5 +39,9 @@ flatpak install com.github.tchx84.Flatseal com.jgraph.drawio.desktop com.mattjak
 # User packages
 # starship
 curl -sS https://starship.rs/install.sh | sh
-
+# Archivos y rendimiento
 yay -S megasync-bin bashtop fastfetch nautilus
+# Ahorro bateria portatil
+yay -S tlp tlp-rdw tlpui
+sudo systemctl enable tlp && sudo systemctl start tlp
+sudo cp ./tlpconfig /etc/default/tlp
