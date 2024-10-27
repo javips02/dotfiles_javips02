@@ -42,6 +42,6 @@ curl -sS https://starship.rs/install.sh | sh
 # Archivos y rendimiento
 yay -S megasync-bin bashtop fastfetch nautilus
 # Ahorro bateria portatil
-yay -S tlp tlp-rdw tlpui
+yay -S tlp tlp-rdw 
 sudo systemctl enable tlp && sudo systemctl start tlp
 sudo cp ./tlpconfig /etc/default/tlp
