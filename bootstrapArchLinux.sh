@@ -17,8 +17,8 @@ yay -Syu --devel
 yay -Y --devel --save
 
 #Greeter
-yay -S greetd-tuigreet
-sudo systemctl enable greetd
+yay -S ly
+sudo systemctl enable ly
 #Hyprland ecosistem
 yay -S hyprland gnome-keyring qt5-wayland qt6-wayland mako xdg-desktop-portal-hyprland hyprshot waybar hypridle xwayland hyprpaper networkmanager qt5-base qt5-declarative qt6-base qt6-quickcontrols2 qt6-declarative ttf-jetbrains-mono-nerd wofi gnome-themes-extra hyprlock brightnessctl
 #polkit
@@ -45,3 +45,10 @@ yay -S megasync-bin bashtop fastfetch nautilus
 yay -S tlp tlp-rdw 
 sudo systemctl enable tlp && sudo systemctl start tlp
 sudo cp ./tlpconfig /etc/default/tlp
+# PDF
+yay -S zathura
+# Office
+yay -S libreoffice-fresh
+yay -S zathura zathura-pdf-mupdf 
+# Fonts
+yay -S ttf-meslo-nerd
