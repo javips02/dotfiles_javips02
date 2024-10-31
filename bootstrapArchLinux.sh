@@ -57,3 +57,8 @@ yay -S libreoffice-fresh
 yay -S zathura zathura-pdf-mupdf 
 # Fonts
 yay -S ttf-meslo-nerd
+
+
+
+# Link all .dotfiles configs to their dirs (.config mainly)
+stow -R --override="--force" .
