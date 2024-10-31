@@ -8,7 +8,7 @@
         "hyprland/workspaces"
     ],
     "modules-center": [
-        "clock"
+		"clock"
     ],
     "modules-right": [
         "tray",
@@ -67,8 +67,8 @@
 	},
 	"clock": {
 		"tooltip-format": "{calendar}",
-		"format-alt": "  {:%a, %d %b %Y}",
-		"format": "  {:%I:%M %p}"
+  		"format-alt": "{:%H:%M}  ",
+		"format": " {:%a, %d %b %Y   %H:%M}"
 	},
 	"network": {
 		"format-wifi" : "{icon}",

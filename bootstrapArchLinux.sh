@@ -23,6 +23,8 @@ sudo systemctl enable ly
 yay -S hyprland gnome-keyring qt5-wayland qt6-wayland mako xdg-desktop-portal-hyprland hyprshot waybar hypridle xwayland hyprpaper networkmanager qt5-base qt5-declarative qt6-base qt6-quickcontrols2 qt6-declarative ttf-jetbrains-mono-nerd wofi gnome-themes-extra hyprlock brightnessctl
 #polkit
 yay -S hyprpolkitagent-git
+# Widgets
+yay -S eww
 
 # Development Utils #
 yay -S jetbrains-toolbox visual-studio-code-bin qemu-full virt-manager libvirt swtpm docker virtiofsd
