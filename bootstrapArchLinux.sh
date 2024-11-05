@@ -33,6 +33,7 @@ cd /tmp/eww && cargo build --release --no-default-features --features=wayland &&
 yay -S jetbrains-toolbox visual-studio-code-bin qemu-full virt-manager libvirt swtpm docker virtiofsd
 sudo systemctl enable libvirtd docker containerd
 sudo usermod -aG qemu libvirt docker javi
+yay -S neovim npm lua unzip
 # Flatpak section #
 yay -S flatpak
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
