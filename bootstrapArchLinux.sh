@@ -58,7 +58,8 @@ yay -S libreoffice-fresh
 yay -S zathura zathura-pdf-mupdf 
 # Fonts
 yay -S ttf-meslo-nerd
-
+# Codecs
+yay -S x265 libde265 libvpx dav1d
 
 
 # Link all .dotfiles configs to their dirs (.config mainly)
