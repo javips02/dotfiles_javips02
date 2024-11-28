@@ -1,0 +1,23 @@
+# Color del fondo y borde
+background-color=#282c34
+border-color=#61afef
+
+# Tamaño del borde y la fuente
+border-size=2
+font=Iosevka 12
+
+# Color y opacidad del texto
+text-color=#ffffff
+
+# Margen y padding
+padding=10
+margin=20
+
+# Posicionamiento en la pantalla
+anchor=top-right
+
+# Redondeado de bordes
+border-radius=8
+
+# Tiempo que se muestra la notificación (milisegundos)
+default-timeout=5000
