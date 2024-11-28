@@ -272,7 +272,6 @@ require("lazy").setup({
 					'jdtls',         -- Java
 					'kotlin_language_server',  -- Kotlin
 					'bashls',        -- Bash
-					'solargraph',    -- Ruby
 					'jsonls',        -- JSON
 					'lemminx',       -- XML
 					'html',          -- HTML
@@ -321,7 +320,6 @@ require("lazy").setup({
 					null_ls.builtins.diagnostics.eslint,
 					null_ls.builtins.formatting.stylua,
 					null_ls.builtins.formatting.gofmt,
-					null_ls.builtins.diagnostics.rubocop,
 					null_ls.builtins.diagnostics.shellcheck,
 					null_ls.builtins.formatting.sqlfluff,
 				},
