@@ -45,6 +45,7 @@ window#waybar.hidden {
   background-color: #f38ba8;
 }
 
+#cpu,
 #memory,
 #custom-power,
 #battery,

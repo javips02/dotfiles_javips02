@@ -12,6 +12,7 @@
     ],
     "modules-right": [
         "tray",
+		"cpu",
         "memory",
         "network",
 		"backlight", 
@@ -21,7 +22,7 @@
     ],
     "cpu": {
         "interval": 5,
-        "format": " {usage}%",
+        "format": "󰍛 {usage}%",
         "format-float": "{:0.0f}", 
     },
     "wlr/taskbar": {
@@ -59,7 +60,7 @@
 	},
 	"memory": {
 		"interval": 15,
-		"format": "󰍛 {}%",
+		"format": " {}%",
 		"max-length": 10
 	},
 	"tray": {
@@ -71,7 +72,7 @@
 		"format": " {:%a, %d %b %Y   %H:%M}"
 	},
 	"network": {
-		"format-wifi" : "{icon}",
+		"format-wifi" : "{icon} {bandwidthDownBytes}",
 		"format-icons": ["󰤯","󰤟","󰤢","󰤥","󰤨"],
 		"format-ethernet": "󰀂",
 		"format-alt" : "󱛇",
