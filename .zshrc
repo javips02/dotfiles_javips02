@@ -17,14 +17,13 @@ alias central='ssh a815877@central.cps.unizar.es'
 alias update="~/.config/scripts/updateMacOS.sh"
 alias sshcasa="ssh -Y javi@85.251.107.114"
 #Variables de entorno PATH
+export JAVA_HOME="/opt/homebrew/Cellar/openjdk@17/17.0.13"
 export PATH="/opt/homebrew/bin:$PATH"
-export PATH="~/software/flutterSDK/flutter/bin:$PATH"
 export PATH="/opt/homebrew/Cellar/openjdk/21.0.1/bin:$PATH"
-export JAVA_HOME="/opt/homebrew/Cellar/openjdk/22.0.1"
-export PATH="/usr/local/mysql/bin:$PATH"
-export PATH="/opt/homebrew/anaconda3/bin:$PATH"
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/bin:$PATH"
+alias gem="/opt/homebrew/opt/ruby/bin/gem"
 #Colores en terminal (para el man sobre todo)
 export LESS_TERMCAP_mb=$'\e[1;32m'
 export LESS_TERMCAP_md=$'\e[1;32m'
@@ -33,12 +32,12 @@ export LESS_TERMCAP_se=$'\e[0m'
 export LESS_TERMCAP_so=$'\e[01;33m'
 export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_us=$'\e[1;4;31m'
-# Configuración de Perl para dependencias de ruby
-PATH="/Users/javi/perl5/bin${PATH:+:${PATH}}"; export PATH;
-PERL5LIB="/Users/javi/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-PERL_LOCAL_LIB_ROOT="/Users/javi/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-PERL_MB_OPT="--install_base \"/Users/javi/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=/Users/javi/perl5"; export PERL_MM_OPT;
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+# zsh macos completions
+#enable compression
+autoload -U compinit
+compinit
+# add path
+fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
 

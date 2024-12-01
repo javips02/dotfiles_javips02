@@ -1,7 +1,6 @@
 #! /bin/bash
 
 # Permisos de sudo para que no los pida luego
-sudo whoami
 echo "------------------------------"
 echo "COMENZANDO LAS ACTUALIZACIONES"
 echo "------------------------------"
