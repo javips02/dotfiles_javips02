@@ -14,7 +14,7 @@ export PATH
 # Sección de aliases #
 # LOCAL #
 alias v="nvim"
-alias updatef="~/.config/scripts/updateFedora.sh"
+alias update="yay --noconfirm && flatpak update -y"
 # UNIZAR #
 alias hendrix="ssh a815877@hendrix-ssh.cps.unizar.es"
 alias central="ssh a815877@central.cps.unizar.es"
