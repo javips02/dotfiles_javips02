@@ -17,18 +17,14 @@ yay -Syu --devel
 yay -Y --devel --save
 
 #Greeter
-yay -S ly
-sudo systemctl enable ly
+yay -S gdm
+sudo systemctl enable gdm
 #Hyprland ecosistem
 yay -S hyprland gnome-keyring qt5-wayland qt6-wayland mako xdg-desktop-portal-hyprland hyprshot waybar hypridle xwayland hyprpaper networkmanager qt5-base qt5-declarative qt6-base qt6-quickcontrols2 qt6-declarative ttf-jetbrains-mono-nerd wofi gnome-themes-extra hyprlock brightnessctl
 #polkit
-yay -S hyprpolkitagent-git
+yay -S hyprpolkitagent-git 
 # Widgets (build eww with wayland support thorough cargo --> rust compiler)
-yay -S rustup
-mkdir -p ~/.local/bin
-git clone https://github.com/elkowar/eww /tmp/eww
-cd /tmp/eww && cargo build --release --no-default-features --features=wayland && chmod +x /tmp/eww/target/release/eww && cp /tmp/eww/target/release/eww ~/.local/bin/eww
-
+yay -S aylurs-gtk-shell-git --noconfirm
 # Development Utils #
 yay -S jetbrains-toolbox visual-studio-code-bin qemu-full virt-manager libvirt swtpm docker virtiofsd
 sudo systemctl enable libvirtd docker containerd

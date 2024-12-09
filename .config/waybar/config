@@ -110,10 +110,10 @@
 		"on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%-"  // Disminuir volumen al hacer scroll hacia abajo
 	},
 	"custom/logo": {
-		"format": " 󰣇 ",
-		"tooltip": false,
-        "on-click": "~/.config/rofi/launchers/misc/launcher.sh &"
-    },
+	    "format": " 󰣇 ",
+	    "tooltip": "~/.config/waybar/scripts/current_layout.sh",
+	    "on-click": "~/.config/waybar/scripts/toggle_keyboard_layout.sh"
+	},
     "battery": {
         "format": "{capacity}% {icon}",
         "format-icons": {
