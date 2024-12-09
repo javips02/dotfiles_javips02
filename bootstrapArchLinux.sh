@@ -25,6 +25,14 @@ yay -S hyprland gnome-keyring qt5-wayland qt6-wayland mako xdg-desktop-portal-hy
 yay -S hyprpolkitagent-git 
 # Widgets (build eww with wayland support thorough cargo --> rust compiler)
 yay -S aylurs-gtk-shell-git eslint --noconfirm
+#For battery module
+yay -S meson vala json-glib gobject-introspection
+(
+git clone https://github.com/aylur/astal.git
+cd astal/lib/battery
+meson setup --prefix /usr build
+meson install -C build
+)
 # Development Utils #
 yay -S jetbrains-toolbox visual-studio-code-bin qemu-full virt-manager libvirt swtpm docker virtiofsd
 sudo systemctl enable libvirtd docker containerd

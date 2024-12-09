@@ -1,7 +1,9 @@
 import { App, Astal, Gtk, Gdk } from "astal/gtk3"
 import { Variable } from "astal"
+import Battery from "gi://AstalBattery"
 
 const time = Variable("").poll(1000, "date")
+const battery = Battery.get_default()
 
 export default function Bar(gdkmonitor: Gdk.Monitor) {
     return <window
@@ -12,18 +14,32 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
             | Astal.WindowAnchor.LEFT
             | Astal.WindowAnchor.RIGHT}
         application={App}>
-        <centerbox>
-            <button
-                onClicked="echo hello"
-                halign={Gtk.Align.CENTER} >
-                Welcome to AGS!
-            </button>
-            <box />
-            <button
-                onClick={() => print("hello")}
-                halign={Gtk.Align.CENTER} >
-                <label label={time()} />
-            </button>
-        </centerbox>
+        <box orientation={Gtk.Orientation.HORIZONTAL}>
+            {/* Caja izquierda */}
+            <box>
+                <button
+                    onClicked={() => { /* Evento vacío */ }}
+                    halign={Gtk.Align.START}>
+                    <label label=" 󰣇 " />
+                </button>
+            </box>
+			{/* Espaciador */}
+            <box expand={true} />
+			 {/* Monitor de batería */}
+            <box>
+                <label
+					label={`BAT: ${battery.percentage*100} %`}
+                />
+            </box>
+			 {/* Caja derecha */}
+            <box>
+                <button
+                    onClick={() => print("hello")}
+                    halign={Gtk.Align.END}>
+                    <label label={time()} />
+                </button>
+            </box>
+        </box>
     </window>
 }
+
