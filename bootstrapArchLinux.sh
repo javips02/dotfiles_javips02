@@ -24,7 +24,7 @@ yay -S hyprland gnome-keyring qt5-wayland qt6-wayland mako xdg-desktop-portal-hy
 #polkit
 yay -S hyprpolkitagent-git 
 # Widgets (build eww with wayland support thorough cargo --> rust compiler)
-yay -S aylurs-gtk-shell-git --noconfirm
+yay -S aylurs-gtk-shell-git eslint --noconfirm
 # Development Utils #
 yay -S jetbrains-toolbox visual-studio-code-bin qemu-full virt-manager libvirt swtpm docker virtiofsd
 sudo systemctl enable libvirtd docker containerd
