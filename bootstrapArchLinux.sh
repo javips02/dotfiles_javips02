@@ -33,6 +33,11 @@ cd astal/lib/battery
 meson setup --prefix /usr build
 meson install -C build
 )
+(
+cd astal/lib/hyprland
+meson setup --prefix /usr build
+meson install -C build
+)
 # Development Utils #
 yay -S jetbrains-toolbox visual-studio-code-bin qemu-full virt-manager libvirt swtpm docker virtiofsd
 sudo systemctl enable libvirtd docker containerd
