@@ -4,11 +4,11 @@
   min-height: 0;
   font-family: JetBrainsMono Nerd Font;
   font-weight: bold;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 window#waybar {
-  background-color: rgba(0, 0, 0, 0.8); /* Fondo completamente transparente */
+  background-color: rgba(61, 61, 61, 1);/* Fondo completamente negro (transparente es 0 0 0 0)*/
   transition-property: background-color;
   transition-duration: 0.5s;
 }
