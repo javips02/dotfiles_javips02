@@ -8,7 +8,7 @@
 }
 
 window#waybar {
-  background-color: rgba(0, 0, 0, 0); /* Fondo completamente transparente */
+  background-color: rgba(0, 0, 0, 0.8); /* Fondo completamente transparente */
   transition-property: background-color;
   transition-duration: 0.5s;
 }
@@ -29,7 +29,7 @@ window#waybar.hidden {
   margin: 6px 3px;
   border-radius: 4px;
   background-color: transparent; /* Fondo transparente */
-  color: #000000; /* Texto blanco */
+  color: #ffffff; /* Texto blanco */
 }
 
 #workspaces button.active {
@@ -59,7 +59,7 @@ window#waybar.hidden {
   margin: 6px 3px;
   padding: 6px 12px;
   background-color: transparent; /* Sin fondo para módulos */
-  color: #000000; /* Texto negro */
+  color: #ffffff; /* Texto negro */
 }
 
 #custom-power {
@@ -72,7 +72,7 @@ window#waybar.hidden {
   margin-left: 5px;
   font-size: 15px;
   border-radius: 8px 0px 0px 8px;
-  color: #000000;
+  color: #ffffff;
 }
 
 #battery.warning,
