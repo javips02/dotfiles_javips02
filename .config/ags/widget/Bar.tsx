@@ -138,11 +138,19 @@ function Brightness() {
 
     return (
         <box className="Brightness">
-            <label label={bind(brightness, value => `Brillo: ${value.trim()}%`)} />
+            <label
+                label={bind(brightness, value => {
+                    // Registra el valor para depuración
+                    console.log("Valor de brillo:", value);
+
+                    // Maneja valores inesperados
+                    //const numericValue = parseInt(value, 10);
+                    return "Brillo: N/A"; /*: `Brillo: ${numericValue}%`;*/
+                })}
+            />
         </box>
     );
 }
-
 export default function Bar(monitor: Gdk.Monitor) {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
 
