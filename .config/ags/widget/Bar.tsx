@@ -85,7 +85,7 @@ function Media() {
                 />
             </box>
         ) : (
-            "SILENCE"
+            ""
         ))}
     </box>
 }
@@ -122,7 +122,7 @@ function FocusedClient() {
     </box>
 }
 
-function Time({ format = "%H:%M - %A %e." }) {
+function Time({ format = "   %a, %d %b    %H:%M" }) {
     const time = Variable<string>("").poll(1000, () =>
         GLib.DateTime.new_now_local().format(format)!)
 
@@ -165,15 +165,14 @@ export default function Bar(monitor: Gdk.Monitor) {
                 <FocusedClient />
             </box>
             <box>
-                <Media />
+                <Time />
             </box>
             <box hexpand halign={Gtk.Align.END} >
+                <Media />
                 <SysTray />
                 <Wifi />
-				<Brightness />
                 <AudioSlider />
                 <BatteryLevel />
-                <Time />
             </box>
         </centerbox>
     </window>
