@@ -26,8 +26,8 @@ window#waybar.hidden {
   min-width: 0;
   box-shadow: none; /* Sin sombras */
   padding: 0px 18px;
-  margin: 6px 3px;
-  border-radius: 4px;
+  margin: 0px 0px;
+  border-radius: 0px;
   background-color: transparent; /* Fondo transparente */
   color: #ffffff; /* Texto blanco */
 }
@@ -56,7 +56,7 @@ window#waybar.hidden {
 #clock,
 #tray {
   border-radius: 4px;
-  margin: 6px 3px;
+  margin: 0px 3px;
   padding: 6px 12px;
   background-color: transparent; /* Sin fondo para módulos */
   color: #ffffff; /* Texto negro */
