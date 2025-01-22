@@ -1,0 +1,49 @@
+# En general, focus con alt, movimiento de ventanas con shift + alt
+
+# stop/start/restart yabai
+ctrl + alt - q : brew services stop yabai
+ctrl + alt - r : brew services restart yabai
+
+#Open apps
+cmd - return : open -n /System/Applications/Utilities/Terminal.app
+
+# change window focus within space
+alt - j : yabai -m window --focus south
+alt - k : yabai -m window --focus north
+alt - h : yabai -m window --focus west
+alt - l : yabai -m window --focus east
+
+#change focus between external displays (left and right)
+alt - s: yabai -m display --focus south
+alt - w: yabai -m display --focus north
+
+# maximize a window
+shift + alt - m : yabai -m window --toggle zoom-fullscreen
+
+# balance out tree of windows (resize to occupy same area)
+shift + alt - e : yabai -m space --balance
+
+# rotate layout clockwise
+shift + alt - r : yabai -m space --rotate 270
+
+# flip along y-axis
+shift + alt - y : yabai -m space --mirror y-axis
+
+# toggle window float (rows:columns:x:y:width:height) --> REVISAR
+shift + alt - f : yabai -m window --toggle float #--grid 4:4:1:1:2:2
+
+# swap windows
+shift + alt - j : yabai -m window --swap south
+shift + alt - k : yabai -m window --swap north
+shift + alt - h : yabai -m window --swap west
+shift + alt - l : yabai -m window --swap east
+
+#move window to prev and next space
+shift + alt - w : yabai -m window --space prev;
+shift + alt - t : yabai -m window --space next;
+
+# move window to space #
+shift + alt - 1 : yabai -m window --space 1;
+shift + alt - 2 : yabai -m window --space 2;
+shift + alt - 3 : yabai -m window --space 3;
+shift + alt - 4 : yabai -m window --space 4;

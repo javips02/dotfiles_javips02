@@ -1,0 +1,189 @@
+#                          ﱦ 齃     ﮂ  ﵁ 爵        ﭵ     ﱦ  ﰊ 異 ﴱ אַ  'Y⃣'
+
+############## BAR ##############
+sketchybar -m --bar height=33 \
+                    blur_radius=0 \
+                    position=top \
+                    padding_left=5 \
+                    padding_right=5 \
+                    margin=0 \
+                    corner_radius=0 \
+                    color=0xff2E3440 \
+                    border_width=0 \
+                    border_color=0xff2E3440
+
+############## GLOBAL DEFAULTS ##############
+sketchybar -m --default updates=when_shown \
+                        drawing=on \
+                        cache_scripts=on \
+                        icon.font="FiraCode Nerd Font:Retina:13.0" \
+                        icon.color=0xffECEFF4 \
+                        icon.highlight_color=0xffA3BE8C \
+                        label.font="FiraCode Nerd Font:Retina:13.0" \
+                        label.color=0xffECEFF4
+
+############## SPACE DEFAULTS ##############
+sketchybar -m --default label.padding_left=0 \
+                        label.padding_right=0 \
+                        icon.padding_left=6 \
+                        icon.padding_right=6
+
+sketchybar -m --add item logo left \
+              --set logo icon= \
+                    background.color=0xffBF616A \
+                    background.height=20 \
+                    background.padding_right=0 \
+                    click_script="sketchybar -m --update"
+
+############## PRIMARY DISPLAY SPACES ##############
+sketchybar -m --add space productivity left \
+              --set productivity associated_space=1 \
+                         associated_display=1 \
+                         icon=1 \
+                         click_script="yabai -m space --focus 1" \
+                         background.color=0xffD8DEE9 \
+                         background.drawing=off \
+              --subscribe productivity mouse.entered mouse.exited \
+                                                                 \
+              --add space browser left \
+              --set browser associated_display=1 \
+                         associated_space=2 \
+                         icon=2 \
+                         click_script="yabai -m space --focus 2" \
+                         background.color=0xffD8DEE9 \
+                         background.drawing=off \
+              --subscribe browser mouse.entered mouse.exited \
+                                                                 \
+              --add space messaging left \
+              --set messaging associated_display=1 \
+                         associated_space=3 \
+                         icon=3 \
+                         click_script="yabai -m space --focus 3" \
+                         background.color=0xffD8DEE9 \
+                         background.drawing=off \
+              --subscribe messaging mouse.entered mouse.exited \
+                                                                 \
+############## ITEM DEFAULTS ###############
+sketchybar -m --default label.padding_left=0 \
+                        icon.padding_right=3 \
+                        icon.padding_left=6 \
+                        label.padding_right=3
+
+############## RIGHT ITEMS ##############
+
+sketchybar -m --add item battery right \
+              --set battery update_freq=60 \
+                            script="~/.config/sketchybar/plugins/power.sh" \
+                            icon= \
+                            background.color=0xff3B4252 \
+                            background.height=20
+
+sketchybar -m --add item power_logo right \
+              --set power_logo icon=⏻ \
+                    background.color=0xffB48EAD \
+                    background.height=20 \
+                    background.padding_left=5
+
+sketchybar -m --add item clock right \
+              --set clock update_freq=20 \
+                          script="~/.config/sketchybar/plugins/clock.sh" \
+                          background.color=0xff3B4252 \
+                          background.height=20 \
+
+sketchybar -m --add item clock_logo right\
+              --set clock_logo icon= \
+                               background.color=0xff5E81AC \
+                               background.height=20 \
+                               background.padding_left=5
+
+sketchybar -m --add item net right \
+              --set net script="~/.config/sketchybar/plugins/net.sh" \
+                                background.color=0xff3B4252 \
+                                background.height=20
+
+sketchybar -m --add item net_logo right \
+              --set net_logo icon= \
+                        background.color=0xffB48EAD \
+                        background.height=20 \
+                        background.padding_left=5
+
+sketchybar -m --add item ram_label right \
+              --set ram_label label.font="Firacode Nerd Font:Retina:7.0" \
+                               label=RAM \
+                               y_offset=5 \
+                               width=0 \
+\
+              --add item ram_percentage right \
+              --set ram_percentage label.font="Firacode Nerd Font:Retina:7.0" \
+                                    y_offset=-4 \
+                                    update_freq=10 \
+                                    script="~/.config/sketchybar/plugins/ram.sh"
+
+sketchybar -m --add item cpu_label right \
+              --set cpu_label label.font="Firacode Nerd Font:Retina:7.0" \
+                    label=CPU \
+                    y_offset=5 \
+                    width=0 \
+\
+              --add item cpu_percent right \
+              --set cpu_percent label.font="Firacode Nerd Font:Retina:7.0" \
+                    y_offset=-4 \
+                    update_freq=10 \
+                    script="~/.config/sketchybar/plugins/cpu.sh"
+
+sketchybar -m --add item network_up right \
+              --set network_up label.font="Firacode Nerd Font:Retina:7.0" \
+                               icon.font="Firacode Nerd Font:Retina:7.0" \
+                               icon= \
+                               icon.highlight_color=0xff8b0a0d \
+                               y_offset=5 \
+                               width=0 \
+                               update_freq=1 \
+                               script="~/.config/sketchybar/plugins/network.sh" \
+\
+              --add item network_down right \
+              --set network_down label.font="Firacode Nerd Font:Retina:7.0" \
+                                 icon.font="Firacode Nerd Font:Retina:7.0" \
+                                 icon= \
+                                 icon.highlight_color=0xff10528c \
+                                 y_offset=-4 \
+                                 update_freq=1
+
+sketchybar -m --add item stats_logo right \
+              --set stats_logo icon= \
+                               icon.font="Firacode Nerd Font:Retina:13.0" \
+                               background.color=0xffD08770 \
+                               background.height=20
+                  
+sketchybar -m --add event song_update com.apple.iTunes.playerInfo
+sketchybar -m --add item music_info left \
+              --set music_info script="~/.config/sketchybar/plugins/spotifyIndicator.sh" \
+                               click_script="~/.config/sketchybar/plugins/music_click.sh" \
+              --subscribe music_info song_update
+
+
+############## BRACKETS ##############
+ sketchybar -m --add bracket primary_spaces productivity \
+                                            browser \
+                                            messaging \
+  \
+               --set primary_spaces background.color=0xff3B4252 \
+                                    background.corner_radius=0 \
+                                    background.height=20
+
+ sketchybar -m --add bracket stats ram_label \
+                                   ram_percentage \
+                                   cpu_label \
+                                   cpu_percent \
+                                   network_up \
+                                   network_down \
+\
+               --set stats background.color=0xff3B4252 \
+                           background.corner_radius=0 \
+                           background.height=20 \
+                           background.padding_left=5
+
+############## FINALIZING THE SETUP ##############
+sketchybar -m --update
+
+echo "sketchybar configuration loaded..."

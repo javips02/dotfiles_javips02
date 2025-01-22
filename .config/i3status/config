@@ -1,0 +1,63 @@
+general {
+        output_format = "i3bar"
+        colors = false
+        markup = pango
+        interval = 5
+        color_good = '#2f343f'
+		color_degraded = '#ebcb8b'
+		color_bad = '#ba5e57'
+}
+
+#order += "read_file spotify"
+order += "ethernet enp1s0"
+order += "wireless wlp2s0"
+order += "read_file brillo"
+order += "volume master"
+order += "battery 1"
+order += "tztime local"
+
+ethernet enp1s0 {
+        format_up = "<span background='#88c0d0'> ip:%ip </span>"
+        format_down = ""
+}
+
+wireless wlp2s0 {
+        format_up = "<span background='#b48ead'>  %essid </span>"
+        format_down = ""
+}
+
+volume master {
+        format = "<span background='#3483eb'>  %volume </span>"
+        format_muted = "<span background='#c21033'> Muted </span>"
+        device = "default"
+        mixer = "Master"
+        mixer_idx = 0
+}
+
+battery 1 {
+	last_full_capacity = true
+	integer_battery_capacity = true
+        format = "<span background='#a3be8c'> %status %percentage </span>"
+        format_down = "No Battery"
+        status_chr = "Charging"
+        status_bat = "Battery"
+        status_unk = "Unknown"
+        status_full = "Charged"
+        path = "/sys/class/power_supply/BAT0/uevent"
+        low_threshold = 10
+}
+
+tztime local {
+		format = "<span background='#81a1c1'> %time </span>"
+		format_time = "%a %-d %b %H:%M"
+}
+
+read_file brillo {
+		format = "<span background='#ebcb8b'>  %content  </span>"
+		path = "/home/javi/.brilly"
+}
+
+#read_file spotify {
+#		format = "<span background='#1DB954'> %content </span>"
+#		path = "/home/javi/.config/i3/current_song"
+#}

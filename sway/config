@@ -1,0 +1,266 @@
+#--------#
+# Inputs #
+#--------#
+
+# virtual console: /etc/vconsole.conf
+
+# Configuración del teclado en español
+input "1:1:AT_Translated_Set_2_keyboard" {
+    xkb_layout es
+    xkb_variant nodeadkeys
+}
+
+# Configuración del ThinkPad Extra Buttons (si es necesario)
+input "6058:20564:ThinkPad_Extra_Buttons" {
+    xkb_layout es
+    xkb_variant nodeadkeys
+}
+
+# Configuración del TrackPoint
+input "2:10:TPPS/2_Elan_TrackPoint" {
+    accel_profile flat
+    pointer_accel 0.4
+}
+
+# Configuración del Touchpad
+input "1739:52828:SYNA8020:00_06CB:CE5C_Touchpad" {
+    tap enabled
+    natural_scroll enabled
+    dwt enabled
+    middle_emulation enabled
+}
+
+# Configuración del Mouse
+input "1739:52828:SYNA8020:00_06CB:CE5C_Mouse" {
+    accel_profile adaptive
+    pointer_accel 0.4
+}
+
+input "Logitech G305" {
+    accel_profile adaptive
+    pointer_accel 0.4
+}
+#---------------------#
+# Basic configuration #
+#---------------------#
+
+set $mod Mod4
+
+# Window borders and titles
+default_border pixel 2
+hide_edge_borders none
+
+# Never move the mouse to the center of the screen.
+mouse_warping none
+
+# Font for window titles (and the bar).
+#font pango:DejaVu Sans Mono 12
+font pango:Inconsolata 14
+
+# start a terminal
+#set $shell exec termite -e fish
+set $shell exec kitty
+bindsym $mod+Return $shell
+bindsym $mod+minus scratchpad show
+bindsym $mod+Shift+minus move scratchpad
+
+# kill focused window
+bindsym $mod+q kill
+
+# reload the configuration file
+bindsym $mod+Shift+r reload
+
+#------------#
+# Navigation #
+#------------#
+
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+bindsym $mod+h focus left
+
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+bindsym $mod+Shift+h move left
+
+# focus the parent / child container
+bindsym $mod+p focus parent
+bindsym $mod+c focus child
+
+# jump to urgent window
+bindsym $mod+x [urgent=latest] focus
+
+# change focus between tiling / floating windows
+bindsym $mod+space focus mode_toggle
+
+# toggle tiling / floating mode
+bindsym $mod+Shift+space floating toggle
+
+# $mod+MouseLeft to drag floating windows
+# $mod+MouseRight to resize floating windows
+floating_modifier $mod
+
+#floating_maximum_size 800 x 800
+
+# Establecer márgenes para simular gaps
+default_border pixel
+default_floating_border pixel
+
+# Márgenes específicos para diferentes tipos de contenedores
+gaps inner 10
+gaps outer 5
+#--------#
+# Layout #
+#--------#
+
+# split in horizontal / vertical orientation
+bindsym $mod+b split v
+#bindsym $mod+Shift+v split v
+bindsym $mod+v split h
+
+# enter fullscreen mode for the focused container
+bindsym $mod+f fullscreen toggle
+
+# change container layout (stacked, tabbed, toggle split)
+bindsym $mod+s layout stacking
+bindsym $mod+t layout tabbed
+bindsym $mod+e layout toggle split
+
+#------------#
+# Workspaces #
+#------------#
+
+# TERM, CODE, READ, WEB, COM, FILES, MEDIA (audio, video, images), MON, MISC (gimp, inkscape)
+set $WS1  workspace  1: MISC
+set $WS2  workspace  2: WEB
+set $WS3  workspace  3: COM
+set $WS4  workspace  4: MISC
+set $WS5  workspace  5: MISC
+set $WS6  workspace  6: BEAM
+
+bindsym $mod+1 workspace $WS1
+bindsym $mod+2 workspace $WS2
+bindsym $mod+3 workspace $WS3
+bindsym $mod+4 workspace $WS4
+bindsym $mod+5 workspace $WS5
+bindsym $mod+6 workspace $WS6
+
+bindsym $mod+Shift+1 move container to workspace $WS1
+bindsym $mod+Shift+2 move container to workspace $WS2
+bindsym $mod+Shift+3 move container to workspace $WS3
+bindsym $mod+Shift+4 move container to workspace $WS4
+bindsym $mod+Shift+5 move container to workspace $WS5
+bindsym $mod+Shift+6 move container to workspace $WS6
+
+# move current workspace to next output
+bindsym $mod+Shift+m move workspace to output right
+
+#------------------------------#
+# Actions for specific windows #
+#------------------------------#
+
+# No border (title bar) for browser.
+#for_window [class="Firefox"] border none
+
+# Slides on beamer.
+for_window [title="pdfpc - presentation .*"] move container to workspace $WS6
+#for_window [app_id="pdfpc"] move container to workspace $WS6
+#assign [class="Pdfpc" window_role="presentation"] workspace $WS6
+
+#--------------------#
+# Multiple displays  #
+#--------------------#
+
+# eDP-1: built-in display of laptop, laptop
+# HDMI-A-1: port on laptop
+# DP-1: display port on laptop
+# DP-2: through docking station
+output eDP-1 {
+	background ~/Pictures/Wallpapers/wallpaper.png fill
+}
+
+output HDMI-A-1 {
+	resolution 1920x1080
+}
+
+output "HDMI-A-1" enable
+#-----------#
+# Launcher  #
+#-----------#
+
+# dmenu customization
+# Program launcher.
+set $menu exec rofi -modi drun -show drun -font "DejaVu Sans Mono 12"
+bindsym $mod+d exec $menu
+
+# Monitor brightness
+bindsym XF86MonBrightnessUp exec brightnessctl set 10%+
+bindsym XF86MonBrightnessDown exec brightnessctl set 10%-
+
+#-------#
+# Audio #
+#-------#
+
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+#-------#
+# Locks #
+#-------#
+
+bindsym $mod+Escape exec i3lock -i ~/Pictures/Wallpapers/wallpaper.png 
+bindsym $mod+Shift+Escape exec i3lock -n -i ~/Pictures/Wallpapers/wallpaper.png && systemctl suspend
+
+#-----------#
+# Sway lock #
+#-----------#
+
+# Regular lock screen.
+#exec swaylock --scaling fill --image ~/Pictures/Wallpapers/wallpaper.png 
+
+# Lock screen on sleep.
+exec swayidle \
+    timeout 300 'swaylock --scaling fill --image ~/Pictures/Wallpapers/wallpaper.png \
+    timeout 600 'swaymsg "output * dpms off"' \
+    resume 'swaymsg "output * dpms on"' \
+    before-sleep 'swaylock --scaling fill --image ~/Pictures/Wallpapers/wallpaper.png'
+
+#-----------#
+# Autostart #
+#-----------#
+
+# Background.
+exec_always feh --bg-fill ~/Pictures/Wallpapers/wallpaper.png
+
+# Hardware daemon.
+exec --no-startup-id xfce4-power-manager
+
+# Fix for gap between windows.
+exec_always --no-startup-id compton --shadow-exclude 'bounding_shaped'
+#exec_always --no-startup-id picom --experimental-backends
+exec_always --no-startup-id waybar &
+
+# Keep in mind that sway uses different backend for display configuration than X11.
+# https://wayland-book.com/seat/multiseat.html
+# Exit sway (logs you out of your Wayland session)
+bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+
+#------------------#
+# XDG environment. #
+#------------------#
+
+# XDG Base Directory Specification, used by X11
+#exec_always --no-startup-id dbus-launch
+
+# https://wayland-book.com/seat/input-method.html
+#exec_always --no-startup-id /usr/libexec/xdg-desktop-portal-gtk
+#exec_always --no-startup-id /usr/libexec/xdg-document-portal
+#exec_always --no-startup-id /usr/libexec/xdg-user-dirs-update
+#exec_always --no-startup-id /usr/libexec/xdg-desktop-portal-wlr
+#exec_always --no-startup-id /usr/libexec/xdg-desktop-portal
+
+#Keyring de gnome para mantener sesiones
+exec --no-startup-id gnome-keyring-daemon --start --components=pkcs11,secrets,ssh
+exec --no-startup-id export $(gnome-keyring-daemon --start)
