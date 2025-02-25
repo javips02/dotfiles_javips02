@@ -23,7 +23,7 @@ tools_general=(
 # Generar lista consolidada sin comentarios
 echo "Instalando paquetes generales"
 packages=$(for package in "${tools_general[@]}"; do echo "${package%%[[:space:]]*#*}"; done)
-brew install $packages
+brew install "$packages"
 
 # Dependencias de desarrollo a nivel de sistema
 dev_dependencies=(
@@ -37,11 +37,12 @@ dev_dependencies=(
 	"tldr  # Páginas de manual simplificadas"
 	"ripgrep  # Herramienta de búsqueda en línea de comandos"
 	"mactex-no-gui  # Distribución TeX para macOS sin GUI"
+	"eslint # paquete para linters en nvim"
 )
 
 echo "Instalando paquetes de desarrollo"
 packages=$(for package in "${dev_dependencies[@]}"; do echo "${package%%[[:space:]]*#*}"; done)
-brew install $packages
+brew install "$packages"
 
 
 # Dependencias para lenguajes de programación (desarrollo y funcionamiento de nvim)
@@ -67,7 +68,7 @@ language_dependencies=(
 
 echo "Instalando paquetes de lenguaje y compilación"
 packages=$(for package in "${language_dependencies[@]}"; do echo "${package%%[[:space:]]*#*}"; done)
-brew install $packages
+brew install "$packages"
 
 
 # Poner los dotfiles en su sitio con gnu stow
