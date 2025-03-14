@@ -21,5 +21,7 @@ alias central="ssh a815877@central.cps.unizar.es"
 # Variables de entorno
 export LIBVA_DRIVER_NAME=iHD
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+export DOTNET_ROOT=$HOME/.dotnet
 export PATH=$JAVA_HOME/bin:$PATH
+export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
 eval "$(starship init bash)"
