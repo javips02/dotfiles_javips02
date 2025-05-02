@@ -17,27 +17,27 @@ yay -Syu --devel
 yay -Y --devel --save
 
 #Greeter
-yay -S gdm
-sudo systemctl enable gdm
+#yay -S sdm
+#sudo systemctl enable gdm
 #Hyprland ecosistem
 yay -S hyprland gnome-keyring qt5-wayland qt6-wayland mako xdg-desktop-portal-hyprland hyprshot waybar hypridle xwayland hyprpaper networkmanager qt5-base qt5-declarative qt6-base qt6-quickcontrols2 qt6-declarative ttf-jetbrains-mono-nerd wofi gnome-themes-extra hyprlock brightnessctl hyprland-qtutils
 #polkit
 yay -S hyprpolkitagent-git 
 # Widgets (build eww with wayland support thorough cargo --> rust compiler)
-yay -S aylurs-gtk-shell-git eslint --noconfirm
+#yay -S aylurs-gtk-shell-git eslint --noconfirm
 #For battery module
-yay -S meson vala json-glib gobject-introspection
-(
-git clone https://github.com/aylur/astal.git
-cd astal/lib/battery
-meson setup --prefix /usr build
-meson install -C build
-)
-(
-cd astal/lib/hyprland
-meson setup --prefix /usr build
-meson install -C build
-)
+#yay -S meson vala json-glib gobject-introspection
+#(
+#git clone https://github.com/aylur/astal.git
+#cd astal/lib/battery
+#meson setup --prefix /usr build
+#meson install -C build
+#)
+#(
+#cd astal/lib/hyprland
+#meson setup --prefix /usr build
+#meson install -C build
+#)
 # Development Utils #
 yay -S jetbrains-toolbox visual-studio-code-bin qemu-full virt-manager libvirt swtpm docker virtiofsd
 sudo systemctl enable libvirtd docker containerd
@@ -55,21 +55,19 @@ flatpak install com.github.tchx84.Flatseal com.jgraph.drawio.desktop com.mattjak
 # starship
 curl -sS https://starship.rs/install.sh | sh
 # Archivos y rendimiento
-yay -S megasync-bin bashtop fastfetch nautilus
+yay -S megasync-bin bashtop fastfetch nnn
 # Ahorro bateria portatil
 yay -S tlp tlp-rdw 
 sudo systemctl enable tlp && sudo systemctl start tlp
 sudo cp ./tlpconfig /etc/default/tlp
-# PDF
-yay -S zathura
 # Office
 yay -S libreoffice-fresh
 yay -S zathura zathura-pdf-mupdf 
 # Fonts
-yay -S ttf-meslo-nerd
+yay -S ttf-clear-sans
 # Codecs
 yay -S x265 libde265 libvpx dav1d
 
 
 # Link all .dotfiles configs to their dirs (.config mainly)
-stow -R --override="--force" .
+#stow -R --override="--force" .

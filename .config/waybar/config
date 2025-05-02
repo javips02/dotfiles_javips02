@@ -8,22 +8,23 @@
         "hyprland/workspaces"
     ],
     "modules-center": [
-		"clock"
+        "clock"
     ],
     "modules-right": [
         "tray",
-		"cpu",
+        "cpu",
         "memory",
         "network",
-		"backlight", 
-        "wireplumber",
+        "backlight",
+        "pulseaudio",
+        "wireplumber#sink",
         "battery",
         "custom/power"
     ],
     "cpu": {
         "interval": 5,
         "format": "󰍛 {usage}%",
-        "format-float": "{:0.0f}", 
+        "format-float": "{:0.0f}"
     },
     "wlr/taskbar": {
         "format": "{icon}",
@@ -48,72 +49,75 @@
             "8": "8",
             "9": "9",
             "focused": "",
-            "urgent": "",
+            "urgent": ""
         },
         "persistent_workspaces": {
             "1": [],
             "2": [],
             "3": [],
             "4": [],
-			"5": []
-		}
-	},
-	"memory": {
-		"interval": 15,
-		"format": " {}%",
-		"max-length": 10
-	},
-	"tray": {
-		"spacing": 10
-	},
-	"clock": {
-		"tooltip-format": "{calendar}",
-  		"format-alt": "{:%H:%M}  ",
-		"format": " {:%a, %d %b   %H:%M}"
-	},
-	"network": {
-		"format-wifi" : "{icon} {bandwidthDownBytes}",
-		"format-icons": ["󰤯","󰤟","󰤢","󰤥","󰤨"],
-		"format-ethernet": "󰀂",
-		"format-alt" : "󱛇",
-		"format-disconnected" : "󰖪",
-		"tooltip-format-wifi": "{icon} {essid}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
-		"tooltip-format-ethernet": "󰀂  {ifname}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
-		"tooltip-format-disconnected": "Disconnected",
-		"on-click": "kitty --class=nmtui-float --name=nmtui-float -o initial_window_width=600 -o initial_window_height=400 nmtui",
-		"on-click-right": "~/.config/rofi/wifi/wifinew.sh &",
-		"interval": 5,
-		"nospacing": 1,
-	},
-	"backlight": {
-		"device": "intel_backlight",  // Asegúrate de usar el nombre correcto de tu dispositivo
-		"format": "{percent}% ",     // Formato para mostrar el brillo actual con ícono
-		"format-icons": ["", ""],   // Opcional: íconos personalizados
-		"on-click": "brightnessctl set +5%",  // Incrementar brillo con clic
-		"on-click-right": "brightnessctl set 5%-",  // Disminuir brillo con clic derecho
-		"on-scroll-up": "brightnessctl set +5%",     // Aumentar brillo al hacer scroll
-		"on-scroll-down": "brightnessctl set 5%-",   // Disminuir brillo al hacer scroll
-		"interval": 60  // Intervalo de actualización en segundos
-	},
-	"wireplumber": {
-		"format": "{icon} {volume}%",  // Mostrar el icono y el porcentaje de volumen
-		"format-bluetooth": "󰂰 {volume}%",
-		"tooltip-format": "Volume: {volume}%",
-		"format-muted": "󰝟 Muted",  // Mostrar el estado de mute si el volumen está silenciado
-		"format-icons": {
-			"headphone": "",
-			"default": ["󰖀", "󰕾", ""]  // Cambiar iconos según el nivel de volumen
-		},
-		"on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",  // Alternar silencio
-		"scroll-step": 3,  // Incrementos del volumen al hacer scroll
-		"on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%+",  // Aumentar volumen al hacer scroll hacia arriba
-		"on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%-"  // Disminuir volumen al hacer scroll hacia abajo
-	},
-	"custom/logo": {
-	    "format": " 󰣇 ",
-	    "tooltip": "~/.config/waybar/scripts/current_layout.sh",
-	    "on-click": "~/.config/waybar/scripts/toggle_keyboard_layout.sh"
-	},
+            "5": []
+        }
+    },
+    "memory": {
+        "interval": 15,
+        "format": " {}%",
+        "max-length": 10
+    },
+    "tray": {
+        "spacing": 10
+    },
+    "clock": {
+        "tooltip-format": "{calendar}",
+        "format-alt": "{:%H:%M}  ",
+        "format": " {:%a, %d %b   %H:%M}"
+    },
+    "network": {
+        "format-wifi": "{icon} {bandwidthDownBytes}",
+        "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+        "format-ethernet": "󰀂",
+        "format-alt": "󱛇",
+        "format-disconnected": "󰖪",
+        "tooltip-format-wifi": "{icon} {essid}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+        "tooltip-format-ethernet": "󰀂  {ifname}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+        "tooltip-format-disconnected": "Disconnected",
+        "on-click": "kitty --class=nmtui-float --name=nmtui-float -o initial_window_width=600 -o initial_window_height=400 nmtui",
+        "on-click-right": "~/.config/rofi/wifi/wifinew.sh &",
+        "interval": 5,
+        "nospacing": 1
+    },
+    "backlight": {
+        "device": "intel_backlight",
+        "format": "{percent}% ",
+        "format-icons": ["", ""],
+        "on-click": "brightnessctl set +5%",
+        "on-click-right": "brightnessctl set 5%-",
+        "on-scroll-up": "brightnessctl set +5%",
+        "on-scroll-down": "brightnessctl set 5%-",
+        "interval": 60
+    },
+    "wireplumber#sink": {
+        "format": "{volume}% {icon}",
+        "format-muted": "󰝟 Muted",
+        "format-icons": {
+            "headphone": "",
+            "default": ["󰖀", "󰕾", ""]
+        },
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "scroll-step": 3,
+        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%-"
+    },
+    "pulseaudio": {
+        "format": "{icon} {format_source}",
+        "format-source": "",
+        "format-source-muted": ""
+    },
+    "custom/logo": {
+        "format": " 󰣇 ",
+        "tooltip": "~/.config/waybar/scripts/current_layout.sh",
+        "on-click": "~/.config/waybar/scripts/toggle_keyboard_layout.sh"
+    },
     "battery": {
         "format": "{capacity}% {icon}",
         "format-icons": {
@@ -149,10 +153,10 @@
             "critical": 10
         },
         "tooltip": false
-	},
-	"custom/power": {
-		"format": "󰤆",
-		"tooltip": false,
-		"on-click":"echo -e '󰌾  Block\n  Shutdown\n󰩈  Log Out\n󰤄  Suspend' | wofi --dmenu --insensitive | xargs -r ~/.config/wofi/powerMenu/powerMenu.sh"
-	}
+    },
+    "custom/power": {
+        "format": "󰤆",
+        "tooltip": false,
+        "on-click": "echo -e '󰌾  Block\n  Shutdown\n󰩈  Log Out\n󰤄  Suspend' | wofi --dmenu --insensitive | xargs -r ~/.config/wofi/powerMenu/powerMenu.sh"
+    }
 }

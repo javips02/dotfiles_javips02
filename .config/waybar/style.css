@@ -52,6 +52,7 @@ window#waybar.hidden {
 #battery,
 #backlight,
 #wireplumber,
+#pulseaudio,
 #network,
 #clock,
 #tray {
@@ -60,6 +61,14 @@ window#waybar.hidden {
   padding: 6px 12px;
   background-color: transparent; /* Sin fondo para módulos */
   color: #ffffff; /* Texto negro */
+}
+
+#microphone {
+  border-radius: 4px;
+  margin: 0px 3px;
+  padding: 6px 12px;
+  background-color: transparent; /* Transparent background */
+  color: #ffffff; /* White text for the mic icon */
 }
 
 #custom-power {
