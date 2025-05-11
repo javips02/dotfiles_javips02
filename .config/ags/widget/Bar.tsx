@@ -1,5 +1,6 @@
 import { App, Astal, Gtk, Gdk } from "astal/gtk4"
 import { Variable } from "astal"
+import { ControlCenter } from "./ControlCentre"
 
 const time = Variable("").poll(1000, "date")
 
@@ -19,9 +20,8 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
                 hexpand
                 halign={Gtk.Align.CENTER}
             >
-                Welcome to AGS!
+                󰣇  Arch
             </button>
-            <box />
             <menubutton
                 hexpand
                 halign={Gtk.Align.CENTER}
@@ -31,6 +31,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
                     <Gtk.Calendar />
                 </popover>
             </menubutton>
+            <ControlCenter />
         </centerbox>
     </window>
 }
