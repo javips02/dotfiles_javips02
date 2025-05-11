@@ -1,4 +1,4 @@
-function ControlCenter(): JSX.Element {
+function PowerMenu(): JSX.Element {
     return (
         <menubutton>
             <label label="󰤆" />
@@ -24,4 +24,4 @@ function ControlCenter(): JSX.Element {
     );
 }
 
-export { ControlCenter };
+export { PowerMenu };
