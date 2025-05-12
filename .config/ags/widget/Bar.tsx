@@ -7,6 +7,7 @@ import Battery from "gi://AstalBattery"
 import Wp from "gi://AstalWp"
 import Network from "gi://AstalNetwork"
 import Tray from "gi://AstalTray"
+import { useState } from "react"
 
 function SysTray() {
     const tray = Tray.get_default()
@@ -125,10 +126,36 @@ function FocusedClient() {
 function Time({ format = "%H:%M - %A %e." }) {
     const time = Variable<string>("").poll(1000, () =>
         GLib.DateTime.new_now_local().format(format)!)
+    let calendarPopover: Gtk.Popover | null = null
 
-    return <label
+    return <button
         className="Time"
         onDestroy={() => time.drop()}
+        onClicked={(button: Gtk.Button) => {
+            if (!calendarPopover) {
+                calendarPopover = new Gtk.Popover({
+                    relative_to: button,
+                    position: Gtk.PositionType.BOTTOM, // Ensure popover appears below the button
+                })
+                const calendar = new Gtk.Calendar()
+                calendarPopover.add(calendar)
+
+                // Adjust the popover's position to ensure it appears fully below the bar
+                calendarPopover.connect("realize", () => {
+                    const allocation = button.get_allocation()
+                    calendarPopover.set_pointing_to({
+                        x: allocation.x,
+                        y: allocation.y + allocation.height,
+                        width: allocation.width,
+                        height: 1,
+                    })
+                })
+
+                calendarPopover.show_all()
+            } else {
+                calendarPopover.visible = !calendarPopover.visible
+            }
+        }}
         label={time()}
     />
 }
