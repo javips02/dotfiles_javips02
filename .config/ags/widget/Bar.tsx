@@ -3,6 +3,7 @@ import { PowerMenu } from "./PowerMenu"
 import { TimeMenuButton } from "./TimeMenuButton"
 import { LogoButton } from "./LogoButton"
 import { Workspaces } from "./Workspaces"
+import { SysTray } from "./SysTray"
 
 export default function Bar(gdkmonitor: Gdk.Monitor) {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
@@ -20,7 +21,10 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
                 <Workspaces />
             </box>
             <TimeMenuButton />
-            <PowerMenu />
+             <box>
+                <SysTray />
+                <PowerMenu />
+             </box>
         </centerbox>
     </window>
 }
