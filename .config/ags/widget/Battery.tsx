@@ -6,7 +6,7 @@ export function Battery_icon() {
     const battery = Battery.get_default();
     
     // Create a button with the battery percentage as label
-    const button = Gtk.Button.new_with_label(`${battery.percentage*100}%`)
+    const button = Gtk.Button.new_with_label(`BAT: ${battery.percentage*100}%`)
     
     // Define the callback function
     const onButtonClicked = () => {

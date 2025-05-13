@@ -21,7 +21,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
             anchor={TOP | LEFT | RIGHT}
             application={App}
         >
-            <box>
+            <centerbox cssName="centerbox">
                 <box>
                     {[<LogoButton />]}
                 </box>
@@ -34,7 +34,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
                     <TimeMenuButton />
                     <PowerMenu />
                 </box>
-            </box>
+            </centerbox>
         </window>
     )
 }

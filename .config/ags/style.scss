@@ -4,23 +4,49 @@ $bg-color: #{"@theme_bg_color"};
 
 window.Bar {
     background: transparent;
-    color: $fg-color;
+    color: white;
+    font-family: "Clear Sans", sans-serif;
+    font-size: 11px;
     font-weight: bold;
 
+    // Style for centerbox
     >centerbox {
-        background: $bg-color;
+        background: transparent;
         border-radius: 10px;
         margin: 8px;
     }
 
-    >box {
-        background: $bg-color;
-        border-radius: 10px;
-        margin: 8px;
+    // Style for all boxes inside Bar
+    box {
+        background: transparent;
     }
 
+    // Style for all buttons inside Bar
     button {
+        background-color: #3D3D3D;
+        color: white;
+        font-family: "Clear Sans", sans-serif;
+        font-size: 11px;
+        font-weight: bold;
         border-radius: 8px;
         margin: 2px;
+        padding: 4px 8px;
+        border: none;
+        
+        &:hover {
+            background-color: #3A3A3A;
+        }
+        
+        &:active {
+            background-color: #1A1A1A;
+        }
+    }
+    
+    // Ensure all labels follow the same font style
+    label {
+        color: white;
+        font-family: "Clear Sans", sans-serif;
+        font-size: 11px;
+        font-weight: bold;
     }
 }

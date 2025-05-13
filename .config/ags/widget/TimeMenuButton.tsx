@@ -18,8 +18,6 @@ const time = Variable("").poll(5000, () => {
 export function TimeMenuButton() {
     return (
         <menubutton
-            hexpand
-            halign={Gtk.Align.CENTER}
         >
             <label label={time()} />
             <popover>
