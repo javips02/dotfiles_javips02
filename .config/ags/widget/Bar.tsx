@@ -6,7 +6,10 @@ import { Workspaces } from "./Workspaces"
 
 export default function Bar(gdkmonitor: Gdk.Monitor) {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
-
+    const { IGNORE } = Astal.Exclusivity
+    const { EXCLUSIVE } = Astal.Keymode
+    const { CENTER } = Gtk.Align
+    
     return (
         <window
             visible
@@ -16,12 +19,12 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
             anchor={TOP | LEFT | RIGHT}
             application={App}
         >
-            <box orientation="horizontal">
+            <box>
                 <box>
-                    <LogoButton />
+                    {[<LogoButton />]}
                 </box>
                 <box>
-                    <Workspaces />
+                    {[<Workspaces />]}
                 </box>
                 <box>
                     <TimeMenuButton />

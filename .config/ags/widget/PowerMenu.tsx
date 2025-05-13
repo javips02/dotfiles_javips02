@@ -1,4 +1,4 @@
-function PowerMenu(): JSX.Element {
+export function PowerMenu(): JSX.Element {
     return (
         <menubutton>
             <label label="󰤆" />
@@ -23,5 +23,3 @@ function PowerMenu(): JSX.Element {
         </menubutton>
     );
 }
-
-export { PowerMenu };
