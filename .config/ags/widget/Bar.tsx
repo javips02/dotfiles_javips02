@@ -16,17 +16,18 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
             anchor={TOP | LEFT | RIGHT}
             application={App}
         >
-            <centerbox
-                cssName="centerbox"
-                startWidget={<LogoButton />}
-                centerWidget={<Workspaces />}
-                endWidget={
-                    <box>
-                        <TimeMenuButton />
-                        <PowerMenu />   
-                    </box>
-                }
-            />
+            <box orientation="horizontal">
+                <box>
+                    <LogoButton />
+                </box>
+                <box>
+                    <Workspaces />
+                </box>
+                <box>
+                    <TimeMenuButton />
+                    <PowerMenu />
+                </box>
+            </box>
         </window>
     )
 }
