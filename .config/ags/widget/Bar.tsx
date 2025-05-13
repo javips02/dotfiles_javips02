@@ -3,13 +3,14 @@ import { PowerMenu } from "./PowerMenu"
 import { TimeMenuButton } from "./TimeMenuButton"
 import { LogoButton } from "./LogoButton"
 import { Workspaces } from "./Workspaces"
+import { Battery_icon } from "./Battery"
 
 export default function Bar(gdkmonitor: Gdk.Monitor) {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
     const { IGNORE } = Astal.Exclusivity
     const { EXCLUSIVE } = Astal.Keymode
     const { CENTER } = Gtk.Align
-    
+
     return (
         <window
             visible
@@ -27,6 +28,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
                     {[<Workspaces />]}
                 </box>
                 <box>
+                    <Battery_icon />
                     <TimeMenuButton />
                     <PowerMenu />
                 </box>
