@@ -6,6 +6,8 @@ import { Workspaces } from "./Workspaces"
 import { Battery_icon } from "./Battery"
 import { Volume_icon, Mic } from "./Volume"
 import { Network_icon } from "./Network"
+import { Ram_icon, Cpu_icon } from "./Performance"
+
 
 export default function Bar(gdkmonitor: Gdk.Monitor) {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
@@ -30,6 +32,8 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
                     {[<Workspaces />]}
                 </box>
                 <box>
+                    < Cpu_icon />
+                    < Ram_icon />
                     <Network_icon />
                     <Mic />
                     <Volume_icon />
