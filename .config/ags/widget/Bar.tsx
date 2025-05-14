@@ -26,10 +26,10 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
         >
             <centerbox cssName="centerbox">
                 <box>
-                    {[<LogoButton />]}
+                    {[<LogoButton />, <Workspaces/>]}
                 </box>
                 <box>
-                    {[<Workspaces />]}
+                    {}
                 </box>
                 <box>
                     < Cpu_icon />
