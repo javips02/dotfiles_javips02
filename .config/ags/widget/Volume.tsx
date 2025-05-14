@@ -44,8 +44,53 @@ export function Volume_icon() {
 
     // Click handler
     button.connect("clicked", () => {
-        console.log(`Volume level: ${Math.round(speaker.volume * 100)}%`);
-        console.log(`Speaker description: ${speaker.description}`);
+        // Toggle mute state
+        speaker.set_mute(!speaker.get_mute());
+    });
+
+    return button;
+}
+
+export function Mic() {
+    const mic = Wp.get_default()?.audio.defaultMicrophone!
+    
+    // Create widgets
+    const button = Gtk.Button.new();
+    const box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6);
+    const image = Gtk.Image.new_from_icon_name("audio-input-microphone-symbolic"); // fallback icon name
+    const label = Gtk.Label.new("Loading...");
+
+    box.append(image);
+    box.append(label);
+    button.set_child(box);
+
+    // Update UI based on mic state
+    const updateButtonLabel = () => {
+        const isMuted = mic.get_mute();
+        
+        // Set icon based on mute state only
+        if (isMuted) {
+            image.set_from_icon_name("microphone-disabled-symbolic");
+        } else {
+            image.set_from_icon_name("audio-input-microphone-symbolic");
+        }
+        
+        // No text in the label
+        label.set_label("");
+    }
+
+    // Initial label update
+    updateButtonLabel();
+
+    // Watch for updates
+    mic.connect("notify::volume", updateButtonLabel);
+    mic.connect("notify::is-muted", updateButtonLabel);
+    mic.connect("notify::mute", updateButtonLabel); // if needed
+
+    // Click handler
+    button.connect("clicked", () => {
+        // Toggle mute state
+        mic.set_mute(!mic.get_mute());
     });
 
     return button;

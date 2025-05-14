@@ -4,7 +4,7 @@ import { TimeMenuButton } from "./TimeMenuButton"
 import { LogoButton } from "./LogoButton"
 import { Workspaces } from "./Workspaces"
 import { Battery_icon } from "./Battery"
-import { Volume_icon } from "./Volume"
+import { Volume_icon, Mic } from "./Volume"
 
 export default function Bar(gdkmonitor: Gdk.Monitor) {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
@@ -29,6 +29,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
                     {[<Workspaces />]}
                 </box>
                 <box>
+                    <Mic />
                     <Volume_icon />
                     <Battery_icon />
                     <TimeMenuButton />
