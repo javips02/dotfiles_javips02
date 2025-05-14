@@ -4,8 +4,8 @@ import { Variable } from "astal"
 const time = Variable("").poll(5000, () => {
     const now = new Date()
     const options: Intl.DateTimeFormatOptions = {
-        weekday: "long",
-        month: "long",
+        weekday: "short",
+        month: "short",
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",

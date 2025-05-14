@@ -3,7 +3,7 @@ export function PowerMenu(): JSX.Element {
         <menubutton>
             <label label="󰤆" />
             <popover>
-                <box orientation="vertical" spacing={10} margin={10}>
+                <box>
                     <button onClicked="hyprlock">
                         <label label=" 󰌾 Lock" />
                     </button>
