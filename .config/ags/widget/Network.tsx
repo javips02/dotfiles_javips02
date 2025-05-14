@@ -1,5 +1,6 @@
 import Network from "gi://AstalNetwork"
 import { Gtk } from "astal/gtk4"
+import { sendNotification } from "./Notifications"
 
 export function Network_icon() {
     const network = Network.get_default();
@@ -60,12 +61,7 @@ export function Network_icon() {
             message += `Signal: ${network.wifi.strength}%\n`;
         }
         
-        // // Show notification
-        // execAsync([
-        //     "notify-send", 
-        //     "Network Status", 
-        //     message
-        // ]).catch(console.error);
+        console.log("Network Status", message);
     });
     
     return button;
