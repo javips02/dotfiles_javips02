@@ -7,6 +7,7 @@ import { Battery_icon } from "./Battery"
 import { Volume_icon, Mic } from "./Volume"
 import { Network_icon } from "./Network"
 import { Ram_icon, Cpu_icon } from "./Performance"
+import { Tray_icon } from "./Tray"
 
 
 export default function Bar(gdkmonitor: Gdk.Monitor) {
@@ -34,6 +35,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
                     {}
                 </box>
                 <box>
+                    <Tray_icon />
                     < Cpu_icon />
                     < Ram_icon />
                     <Network_icon />

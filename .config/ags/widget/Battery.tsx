@@ -19,7 +19,6 @@ export function Battery_icon() {
         const percentage = Math.round(battery.percentage * 100);
         label.set_label(`${percentage}%`);
         image.set_from_icon_name(battery.icon_name || "battery-symbolic");
-        console.log(`Battery icon name: ${battery.icon_name}`);
     };
 
     // Initial update
