@@ -13,7 +13,7 @@ window.Bar {
     >centerbox {
         background: transparent;
         border-radius: 10px;
-        margin: 8px;
+        margin: 2px;
     }
 
     // Style for all boxes inside Bar
@@ -39,6 +39,24 @@ window.Bar {
         
         &:active {
             background-color: #1A1A1A;
+        }
+        
+        &.focused {
+            background-color: white;
+            color: #3D3D3D;
+            box-shadow: inset 0 0 0 3px #3D3D3D;
+            
+            label {
+                color: #3D3D3D;
+            }
+            
+            &:hover {
+                background-color: #EEEEEE;
+            }
+            
+            &:active {
+                background-color: #DDDDDD;
+            }
         }
     }
     

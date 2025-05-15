@@ -1,6 +1,6 @@
 import Network from "gi://AstalNetwork"
 import { Gtk } from "astal/gtk4"
-import { sendNotification } from "./Notifications"
+import { exec, execAsync } from "astal/process"
 
 export function Network_icon() {
     const network = Network.get_default();
@@ -45,24 +45,29 @@ export function Network_icon() {
     network.connect("notify::state", updateNetworkStatus);
     
     // Click handler - Show notification with network info
-    button.connect("clicked", () => {
-        // Build a message with relevant network info
-        let message = "Network Information\n------------------\n";
+    button.connect("clicked", async () => {
+        // Keep debug comments for future reference
+        // Debug info commented out for future use
+        // // Build a message with relevant network info
+        // let message = "Network Information\n------------------\n";
+        // // Add wired info if available
+        // if (network.wired) {
+        //     message += `Wired: Connected\n`;
+        //     message += `Speed: ${network.wired.speed} Mbps\n`;
+        // }
+        // // Add WiFi info if available
+        // if (network.wifi && network.wifi.ssid) {
+        //     message += `WiFi: ${network.wifi.ssid}\n`;
+        //     message += `Signal: ${network.wifi.strength}%\n`;
+        // }
+        // console.log("Network Status", message);
         
-        // Add wired info if available
-        if (network.wired) {
-            message += `Wired: Connected\n`;
-            message += `Speed: ${network.wired.speed} Mbps\n`;
+        try {
+            await execAsync(["ghostty", "-e", "nmtui"]);
+        } catch (error) {
+            console.error('Failed to launch network manager:', error);
         }
-        
-        // Add WiFi info if available
-        if (network.wifi && network.wifi.ssid) {
-            message += `WiFi: ${network.wifi.ssid}\n`;
-            message += `Signal: ${network.wifi.strength}%\n`;
-        }
-        
-        console.log("Network Status", message);
     });
-    
+
     return button;
 }
