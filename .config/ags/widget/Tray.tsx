@@ -1,6 +1,5 @@
 import Tray from "gi://AstalTray"
 import { Gtk } from "astal/gtk4"
-import { bind } from "astal"
 
 export function Tray_icon() {
     const tray = Tray.get_default();
