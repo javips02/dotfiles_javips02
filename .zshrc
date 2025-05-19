@@ -45,5 +45,11 @@ compinit
 # add path
 fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
 
+<<<<<<< Updated upstream
 # Load Angular CLI autocompletion.
 source <(ng completion script)
+=======
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/javi/.cache/lm-studio/bin"
+>>>>>>> Stashed changes
