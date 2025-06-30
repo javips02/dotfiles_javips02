@@ -4,25 +4,18 @@ eval "$(rbenv init - zsh)"
 #Unizar
 alias v="nvim"
 alias hendrix="ssh a815877@hendrix-ssh.cps.unizar.es"
-alias lab000="ssh a815877@lab000.cps.unizar.es"
-alias logisim="java -jar /Users/javi/Documents/uni/22_aoc2_rep/logisim-2.7.2-cs3410-20140215.jar"
-alias mysql="/usr/local/mysql/bin/mysql -u root -p"
-alias vhdl="/Users/javi/.config/scripts/sshDirac2.sh"
-#ADSIS2
-alias lab102On='ssh a815877@central.cps.unizar.es "/usr/local/etc/wake -y lab102-207"'
-alias lab102-207='ssh a815877@lab102-207.cps.unizar.es'
-alias lab102State='ssh a815877@central.cps.unizar.es "lab102.sh"'
-alias backupo18='scp -r a815877@lab102-207.cps.unizar.es:/home/a815877/as2folder /Users/javi/Documents/uni/32_adsis2/pr1'
 alias central='ssh a815877@central.cps.unizar.es'
+alias lab000="ssh a815877@lab000.cps.unizar.es"
 alias update="~/.config/scripts/updateMacOS.sh"
-alias sshcasa="ssh -Y javi@85.251.107.114"
+alias lua="luajit"
 #Variables de entorno PATH
-export JAVA_HOME="/opt/homebrew/Cellar/openjdk@17/17.0.13"
+export JAVA_HOME="/opt/homebrew/Cellar/openjdk@21/21.0.7/"
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="/opt/homebrew/Cellar/openjdk/21.0.1/bin:$PATH"
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/bin:$PATH"
+export PATH="/opt/homebrew/opt/perl/bin:$PATH"
 alias gem="/opt/homebrew/opt/ruby/bin/gem"
 #Colores en terminal (para el man sobre todo)
 export LESS_TERMCAP_mb=$'\e[1;32m'
@@ -45,11 +38,25 @@ compinit
 # add path
 fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
 
-<<<<<<< Updated upstream
-# Load Angular CLI autocompletion.
-source <(ng completion script)
-=======
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/javi/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions
 
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/javi/.cache/lm-studio/bin"
->>>>>>> Stashed changes
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+#__conda_setup="$('/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+#if [ $? -eq 0 ]; then
+#    eval "$__conda_setup"
+#else
+#    if [ -f "/opt/anaconda3/etc/profile.d/conda.sh" ]; then
+#        . "/opt/anaconda3/etc/profile.d/conda.sh"
+#    else
+#        export PATH="/opt/anaconda3/bin:$PATH"
+#    fi
+#fi
+#unset __conda_setup
+# <<< conda initialize <<<
+
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
