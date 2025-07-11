@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+temps=("#0600FF" "#0500FF" "#0400FF" "#0300FF" "#0200FF" "#0100FF" "#0000FF" "#0002FF" "#0012FF" "#0022FF" "#0032FF" "#0044FF" "#0054FF" "#0064FF" "#0074FF" "#0084FF" "#0094FF" "#00A4FF" "#00B4FF" "#00C4FF" "#00D4FF" "#00E4FF" "#00FFF4" "#00FFD0" "#00FFA8" "#00FF83" "#00FF5C" "#00FF36" "#00FF10" "#17FF00" "#3EFF00" "#65FF00" "#B0FF00" "#FDFF00" "#FFF000" "#FFDC00" "#FFC800" "#FFB400" "#FFA000" "#FF8C00" "#FF7800" "#FF6400" "#FF5000" "#FF3C00" "#FF2800" "#FF1400" "#FF0000")
+
+command -v jq >/dev/null 2>&1 || { echo >&2 "Program 'jq' required but it is not installed.  Aborting."; exit 1; }
+command -v wget >/dev/null 2>&1 || { echo >&2 "Program 'wget' required but is not installed.  Aborting."; exit 1; }
+
+APIKEY="bb92dcd3002954c31a5c13b4e57dd263"
+LAT="41.656841"
+LON="-0.879420"
+URL="http://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&units=metric&appid=${APIKEY}"
+WEATHER_RESPONSE=$(wget -qO- "${URL}")
+
+WEATHER_CONDITION=$(echo "$WEATHER_RESPONSE" | jq -r '.weather[0].main')
+WEATHER_TEMP=$(echo "$WEATHER_RESPONSE" | jq '.main.feels_like // 0')
+WEATHER_INT=${WEATHER_TEMP%.*}
+DESCRIPTION=$(echo "$WEATHER_RESPONSE" | jq -r '.weather[0].description // "N/A"')
+WIND_SPEED=$(echo "$WEATHER_RESPONSE" | jq '.wind.speed // 0')
+WIND_KMH=$(awk "BEGIN {printf \"%.1f\", $WIND_SPEED * 3.6}")
+
+# Extract UNIX times
+TIME_NOW=$(echo "$WEATHER_RESPONSE" | jq '.dt // 0')
+SUNRISE=$(echo "$WEATHER_RESPONSE" | jq '.sys.sunrise // 0')
+SUNSET=$(echo "$WEATHER_RESPONSE" | jq '.sys.sunset // 0')
+
+DAYTIME="n"
+if [ "$TIME_NOW" -gt "$SUNRISE" ] && [ "$TIME_NOW" -lt "$SUNSET" ]; then
+    DAYTIME="d"
+fi
+
+case $WEATHER_CONDITION in
+  'Clouds')
+    if [ "$DAYTIME" == "d" ]; then
+        WEATHER_ICON=""   # nf-fa-cloud (Font Awesome: \uf0c2)
+    else
+        WEATHER_ICON=""   # nf-fa-cloud (Font Awesome: \uf0c2)
+    fi
+    ;;
+  'Rain')
+    WEATHER_ICON=""       # nf-fa-umbrella (Font Awesome: \uf0e9)
+    ;;
+  'Drizzle')
+    if [ "$DAYTIME" == "d" ]; then
+        WEATHER_ICON=""   # nf-fa-tint (Font Awesome: \uf043)
+    else
+        WEATHER_ICON=""   # nf-fa-tint (Font Awesome: \uf043)
+    fi
+    ;;
+  'Thunderstorm')
+    WEATHER_ICON=""       # nf-fa-bolt (Font Awesome: \uf0e7)
+    ;;
+  'Snow')
+    WEATHER_ICON=""       # nf-fa-snowflake_o (Font Awesome: \uf2dc)
+    ;;
+  'Clear')
+    if [ "$DAYTIME" == "d" ]; then
+        WEATHER_ICON=""   # nf-fa-sun_o (Font Awesome: \uf185)
+    else
+        WEATHER_ICON=""   # nf-fa-moon_o (Font Awesome: \uf186)
+    fi
+    ;;
+  *)
+    WEATHER_ICON=""       # nf-fa-eye_slash (Font Awesome: \uf070) as fallback
+    ;;
+esac
+
+WEATHER_COLOR="#FFFFFF"
+if [ "$WEATHER_INT" -lt "-11" ]; then
+    WEATHER_COLOR="#0000FF"
+elif [ "$WEATHER_INT" -gt 35 ]; then
+    WEATHER_COLOR="#FF0000"
+else
+    WEATHER_INT=$(( WEATHER_INT + 11 )) 
+    WEATHER_COLOR="${temps[$WEATHER_INT]}"
+fi
+
+full_text="${WEATHER_ICON}  ${WEATHER_TEMP}°C: ${DESCRIPTION} | 💨 ${WIND_KMH} km/h"
+
+echo "${full_text}"
+echo "${WEATHER_TEMP}°C "
+echo "${WEATHER_COLOR}"
+
+
