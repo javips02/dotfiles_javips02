@@ -25,3 +25,8 @@ export DOTNET_ROOT=$HOME/.dotnet
 export PATH=$JAVA_HOME/bin:$PATH
 export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
 eval "$(starship init bash)"
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/javi/.cache/lm-studio/bin"
+# End of LM Studio CLI section
+

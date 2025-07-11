@@ -312,19 +312,19 @@ require("lazy").setup({
 			}
 
 			-- Linters and formatters setup
-			require('mason-null-ls').setup {
-				ensure_installed = {
-					'clang-format',  -- C/C++
-					'black',         -- Python
-					'prettier',      -- HTML, CSS, JSON
-					'eslint',        -- JavaScript
-					'stylua',        -- Lua
-					'gofmt',         -- Go
-					'shellcheck',    -- Bash
-					'sqlfluff',      -- SQL
-				},
-				automatic_installation = true,
-			}
+   -- 		require('mason-null-ls').setup {
+   -- 			ensure_installed = {
+   -- 				'clang-format',  -- C/C++
+   -- 				'black',         -- Python
+   -- 				'prettier',      -- HTML, CSS, JSON
+   -- 				'eslint',        -- JavaScript
+   -- 				'stylua',        -- Lua
+   -- 				'gofmt',         -- Go
+   -- 				'shellcheck',    -- Bash
+   -- 				'sqlfluff',      -- SQL
+   -- 			},
+   -- 			automatic_installation = true,
+   -- 		}
 
 			-- Configuración de null-ls
 			null_ls.setup({
@@ -341,14 +341,14 @@ require("lazy").setup({
 			})
 
 			-- Configurar manejadores para servidores LSP
-			local capabilities = cmp_nvim_lsp.default_capabilities()
-			mason_lspconfig.setup_handlers({
-				function(server_name)
-					lspconfig[server_name].setup({
-						capabilities = capabilities,
-					})
-				end,
-			})
+			--local capabilities = cmp_nvim_lsp.default_capabilities()
+			--mason_lspconfig.setup_handlers({
+			--	function(server_name)
+			--		lspconfig[server_name].setup({
+			--			capabilities = capabilities,
+			--		})
+			--	end,
+			--})
 
 			-- Configurar nvim-cmp
 			require('luasnip.loaders.from_vscode').lazy_load()
