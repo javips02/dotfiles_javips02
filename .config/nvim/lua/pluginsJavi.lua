@@ -251,7 +251,7 @@ require("lazy").setup({
 			'L3MON4D3/LuaSnip',               -- Motor de snippets
 			'rafamadriz/friendly-snippets',   -- Colección de snippets
 			'onsails/lspkind.nvim',           -- Iconos en el menú de autocompletado
-			'jose-elias-alvarez/null-ls.nvim',-- Integración con linters y formatters
+			'nvimtools/none-ls.nvim',		  -- Integración con linters y formatters
 			'jay-babu/mason-null-ls.nvim',    -- Mason integración con null-ls
 			'mfussenegger/nvim-dap',          -- Depuración
 			'jay-babu/mason-nvim-dap.nvim'    -- Mason integración con nvim-dap
@@ -293,6 +293,7 @@ require("lazy").setup({
 					'html',          -- HTML
 					'sqlls',         -- SQL
 					'gopls',         -- Go
+					'bashls',        -- Bash
 				},
 				automatic_installation = true,
 			})
@@ -332,10 +333,8 @@ require("lazy").setup({
 					null_ls.builtins.formatting.clang_format,
 					null_ls.builtins.formatting.black,
 					null_ls.builtins.formatting.prettier,
-					null_ls.builtins.diagnostics.eslint,
 					null_ls.builtins.formatting.stylua,
 					null_ls.builtins.formatting.gofmt,
-					null_ls.builtins.diagnostics.shellcheck,
 					null_ls.builtins.formatting.sqlfluff,
 				},
 			})
@@ -415,11 +414,26 @@ require("lazy").setup({
 			})
 
 			-- Cambiar los símbolos de Diagnóstico en la columna de signos (gutter)
-			local signs = { Error = ' ', Warn = ' ', Hint = '󰠠 ', Info = ' ' }
-			for type, icon in pairs(signs) do
-				local hl = 'DiagnosticSign' .. type
-				vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
-			end
+			-- Configurar los signos de diagnóstico usando la nueva API
+			vim.diagnostic.config({
+				signs = {
+					text = {
+						[vim.diagnostic.severity.ERROR] = " ",
+						[vim.diagnostic.severity.WARN] = " ",
+						[vim.diagnostic.severity.HINT] = "󰠠 ",
+						[vim.diagnostic.severity.INFO] = " ",
+					},
+					-- You can also specify highlight groups here, or let them be inferred
+					-- from the default DiagnosticSign<severity> highlight groups.
+				},
+				virtual_text = true, -- Enable virtual text for inline diagnostics
+				update_in_insert = false,
+			})
+--			local signs = { Error = ' ', Warn = ' ', Hint = '󰠠 ', Info = ' ' }
+--			for type, icon in pairs(signs) do
+--				local hl = 'DiagnosticSign' .. type
+--				vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
+--			end
 		end,
 	},
 })
