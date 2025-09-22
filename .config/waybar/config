@@ -106,12 +106,14 @@
         "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "scroll-step": 3,
         "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%+",
-        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%-"
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%-",
+		"on-click-right": "pavucontrol"
     },
     "pulseaudio": {
         "format": "{icon} {format_source}",
         "format-source": "",
-        "format-source-muted": ""
+        "format-source-muted": "",
+		"on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
     },
     "custom/logo": {
         "format": "  ",
