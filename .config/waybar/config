@@ -75,7 +75,7 @@
   	"network": {
 		"format-wifi": "{icon} {bandwidthDownBytes}",
 	 	"format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
-	   	"format-ethernet": "",       
+	   	"format-ethernet": "  ⇣{bandwidthDownBytes}",       
 	   	"format-disconnected": "",   
 	   	"tooltip-format-wifi": "{icon} {essid}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
 	   	"tooltip-format-ethernet": "  {ifname}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
@@ -134,11 +134,18 @@
     	    "warning": 30,
     	    "critical": 15
     	},
-    	"tooltip": false,
+    	"tooltip": false
 	},
     "custom/power": {
-        "format": "󰤆",
-        "tooltip": false,
-        "on-click": "echo -e '󰌾  Block\n  Shutdown\n󰩈  Log Out\n󰤄  Suspend' | wofi --dmenu --insensitive | xargs -r ~/.config/wofi/powerMenu/powerMenu.sh"
+        "format": "{icon} {text}",
+        "exec": "~/.config/waybar/scripts/toggle_powerProfile.sh",
+        "on-click": "~/.config/waybar/scripts/toggle_powerProfile.sh set",
+        "interval": 10,
+        "return-type": "json",
+        "format-icons": {
+            "performance": "",
+            "balanced": "󰾅",
+            "power-saver": "󰌪"
+        }
     }
 }

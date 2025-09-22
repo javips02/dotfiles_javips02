@@ -1,0 +1,6 @@
+
+    #"custom/power": {
+    #    "format": "󰤆",
+    #    "tooltip": false,
+    #    "on-click": "echo -e '󰌾  Block\n  Shutdown\n󰩈  Log Out\n󰤄  Suspend' | wofi --dmenu --insensitive | xargs -r ~/.config/wofi/powerMenu/powerMenu.sh"
+    #},
