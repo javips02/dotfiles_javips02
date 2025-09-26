@@ -49,6 +49,8 @@ window#waybar.hidden {
 #cpu,
 #memory,
 #custom-power,
+#custom-powerMenu,
+#custom-notification,
 #custom-caffeine,
 #battery,
 #backlight,
@@ -72,8 +74,9 @@ window#waybar.hidden {
   color: #ffffff; /* White text for the mic icon */
 }
 
-#custom-power {
-  margin-right: 6px;
+#custom-power,
+#custom-powerMenu {
+  margin-right: 3px;
 }
 
 #custom-logo {

@@ -8,7 +8,8 @@
         "hyprland/workspaces"
     ],
     "modules-center": [
-        "clock"
+        "clock",
+		"custom/notification"
     ],
     "modules-right": [
         "tray",
@@ -20,6 +21,7 @@
         "wireplumber#sink",
         "battery",
         "custom/power",
+        "custom/powerMenu"
     ],
     "cpu": {
         "interval": 5,
@@ -158,5 +160,29 @@
             "on": "",
             "off": ""
         }
-    }
+    },
+    "custom/powerMenu": {
+		"format": "",
+		"on-click": "echo -e '󰌾  Block\\n  Shutdown\\n󰩈  Log Out\\n󰤄  Suspend' | wofi --dmenu --insensitive | xargs -r ~/.config/wofi/powerMenu/powerMenu.sh"
+	},
+	"custom/notification": {
+		"tooltip": false,
+		"format": "{icon}",
+		"format-icons": {
+			"notification": "<span foreground='red'><sup></sup></span>",
+			"none": "",
+			"dnd-notification": "<span foreground='red'><sup></sup></span>",
+			"dnd-none": "",
+			"inhibited-notification": "<span foreground='red'><sup></sup></span>",
+			"inhibited-none": "",
+			"dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
+			"dnd-inhibited-none": ""
+		},
+		"return-type": "json",
+		"exec-if": "which swaync-client",
+		"exec": "swaync-client -swb",
+		"on-click": "swaync-client -t -sw",
+		"on-click-right": "swaync-client -d -sw",
+		"escape": true
+	},
 }
