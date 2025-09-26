@@ -1,41 +1,57 @@
-/* power-menu.css */
+/* Gruvbox Power Menu Theme - Consistent with main style */
 
-/* General window style */
+/* Main window */
 #window {
-    background-color: rgba(30, 30, 46, 0.8); /* Fondo con transparencia */
-    border-radius: 1rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    font-size: 1.2rem;
+    background-color: rgba(40, 40, 40, 0.95); /* #282828 with transparency */
+    border: 2px solid #504945; /* Gruvbox brown border */
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+    font-family: "JetBrains Mono Nerd Font", monospace;
+    font-size: 14px;
 }
 
-/* Outer box */
+/* Outer container */
 #outer-box {
-    padding: 1rem;
+    padding: 12px;
 }
 
-/* Entry style */
+/* Power menu entries */
 #window #outer-box #scroll #inner-box #entry {
-    color: rgba(255, 255, 255, 0.9); /* Texto blanco */
-    background-color: rgba(30, 30, 46, 0.4); /* Fondo con transparencia */
-    padding: 1rem;
-    border-radius: 0.5rem;
+    color: #ebdbb2; /* Gruvbox light foreground */
+    background-color: rgba(60, 56, 54, 0.7); /* #3c3836 with transparency */
+    padding: 16px 20px;
+    border: 1px solid rgba(80, 73, 69, 0.4); /* Subtle border */
+    border-radius: 6px;
+    margin: 4px 0;
     display: flex;
     align-items: center;
+    transition: all 0.2s ease;
 }
 
-/* Selected entry style */
+#window #outer-box #scroll #inner-box #entry:hover {
+    background-color: rgba(80, 73, 69, 0.8); /* #504945 on hover */
+    border-color: rgba(102, 92, 84, 0.6); /* #665c54 on hover */
+}
+
+/* Selected entry style - using Gruvbox orange for power actions */
 #window #outer-box #scroll #inner-box #entry:selected {
-    background-color: rgba(138, 43, 226, 1); /* Fondo violeta llamativo */
+    color: #282828; /* Dark text on selection */
+    background-color: #fe8019; /* Gruvbox orange for power menu */
+    border-color: #fe8019;
+    box-shadow: 0 0 0 2px rgba(254, 128, 25, 0.3);
 }
 
-/* Entry icon style */
+/* Power menu icons - larger for better visibility */
 #window #outer-box #scroll #inner-box #entry #img {
-    width: 2rem; /* Tamaño grande para iconos */
-    margin-right: 1rem; /* Espacio entre icono y texto */
+    width: 24px;
+    height: 24px;
+    margin-right: 16px;
 }
 
-/* Entry text style */
+/* Power menu text - larger and bolder */
 #window #outer-box #scroll #inner-box #entry #text {
-    flex: 1; /* Ocupa todo el espacio */
-    font-size: 1.5rem; /* Tamaño de texto más grande */
+    flex: 1;
+    font-family: "JetBrains Mono Nerd Font", monospace;
+    font-size: 16px;
+    font-weight: 500;
 }
