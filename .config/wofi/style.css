@@ -1,12 +1,8 @@
-/* Gruvbox Wofi Theme - Unified Styling with Image */
+/* Gruvbox Wofi Theme - Minimalistic Styling */
 
 /* Main window */
 #window {
   background-color: rgba(40, 40, 40, 0.95);
-  background-image: url("/home/javips/.dotfiles/.config/wofi/image.png");
-  background-repeat: no-repeat;
-  background-position: left; 
-  background-size: 280px 100%; /* WINDOW BACKGROUND SIZE WIDTH IS HERE*/
   border: 2px solid #504945;
   border-radius: 8px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
@@ -16,10 +12,9 @@
   position: relative;
 }
 
-/* Outer container - with space for left image */
+/* Outer container - simplified */
 #window #outer-box {
   padding: 8px;
-  padding-left: 280px; /* Space for the image , TOUCH THIS ALONGSIDE THE WINDOW BACKGROUND SIZE WIDTH*/
   min-height: 200px;
 }
 
