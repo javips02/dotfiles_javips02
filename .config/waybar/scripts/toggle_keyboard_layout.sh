@@ -24,3 +24,13 @@ hyprctl setxkbmap "$NEW_LAYOUT"
 # Guarda el nuevo idioma
 echo "$NEW_LAYOUT" > "$LAYOUT_FILE"
 
+# Mapea a un nombre legible para la notificación
+case "$NEW_LAYOUT" in
+    es) LAYOUT_LABEL="ES (Spanish)";;
+    us) LAYOUT_LABEL="US (English)";;
+    *)  LAYOUT_LABEL="$NEW_LAYOUT";;
+esac
+
+# Envía una notificación con el layout actual
+notify-send "Keyboard layout" "Switched to: $LAYOUT_LABEL"
+

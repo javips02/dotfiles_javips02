@@ -4,7 +4,6 @@
     "spacing": 0,
     "height": 30,
     "modules-left": [
-		"custom/caffeine",
         "hyprland/workspaces"
     ],
     "modules-center": [
@@ -21,6 +20,7 @@
         "wireplumber#sink",
         "battery",
         "custom/power",
+        "idle_inhibitor",
         "custom/powerMenu"
     ],
     "cpu": {
@@ -130,7 +130,7 @@
     	        "󰁺","󰁻","󰁼","󰁽","󰁾","󰁿","󰂀","󰂁","󰂂","󰁹"
     	    ]
     	},
-    	"format-full": "Charged ",
+    	"format-full": "Charged ",
     	"interval": 5,
     	"states": {
     	    "warning": 30,
@@ -139,7 +139,7 @@
     	"tooltip": false
 	},
     "custom/power": {
-        "format": "{icon} {text}",
+        "format": "{icon}",
         "exec": "~/.config/waybar/scripts/toggle_powerProfile.sh",
         "on-click": "~/.config/waybar/scripts/toggle_powerProfile.sh set",
         "interval": 10,
@@ -150,16 +150,16 @@
             "power-saver": "󰌪"
         }
     },
-    "custom/caffeine": {
+    "idle_inhibitor": {
         "format": "{icon}",
-        "exec": "~/.config/waybar/scripts/caffeine.sh",
-        "on-click": "~/.config/waybar/scripts/caffeine.sh toggle",
-        "return-type": "json",
-        "interval": 5,
         "format-icons": {
-            "on": "",
-            "off": ""
-        }
+            "activated": "  ",
+            "deactivated": "  "
+        },
+        "tooltip": true,
+        "tooltip-format-activated": "Presentation mode: {status}",
+        "tooltip-format-deactivated": "{status}",
+        "start-activated": false
     },
     "custom/powerMenu": {
 		"format": "",

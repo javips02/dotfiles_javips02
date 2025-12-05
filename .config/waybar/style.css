@@ -46,6 +46,7 @@ window#waybar.hidden {
   background-color: #f38ba8;
 }
 
+#idle_inhibitor,
 #cpu,
 #memory,
 #custom-power,
