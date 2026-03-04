@@ -1,0 +1,9 @@
+README
+README.*
+LICENSE
+*.md
+*.log
+*.o
+*.pyc
+__pycache__
+.DS_Store
