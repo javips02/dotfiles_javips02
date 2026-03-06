@@ -1,0 +1,10 @@
+{
+  "bar.customModules.storage.paths": [
+    "/"
+  ],
+  "theme.font.name": "Clear Sans",
+  "theme.font.label": "Clear Sans Bold",
+  "scalingPriority": "gdk",
+  "theme.bar.floating": false,
+  "bar.autoHide": "never"
+}
