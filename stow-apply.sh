@@ -1,43 +1,29 @@
 
-#!/usr/bin/env bash
-set -euo pipefail
-IFS=$'\n\t'
-
-# Check for required command
-if ! command -v stow >/dev/null 2>&1; then
-  echo "Error: GNU Stow is not installed or not in PATH." >&2
-  exit 2
-fi
 
 
-usage() {
-  echo "Usage: $0 [macos|linux|windows]" >&2
-  exit 1
-}
+    usage() {
+      echo "Usage: $0 [macos|linux|windows]" >&2
+      exit 1
+    }
 
+    if [ "$#" -ne 1 ]; then
+      usage
+    fi
 
-if [ "$#" -ne 1 ]; then
-  usage
-fi
-
-esac
-
-case "$1" in
-  macos)
-    pkgs=(nvim shell wmmacos tmux)
-    ;;
-  linux)
-    pkgs=(ags asound bar dwmconfig hyprsuite menus notifications nvim qtile shell sway terminal tmux)
-    ;;
-  windows)
-    pkgs=(nvim shell)
-    ;;
-  *)
-    usage
-    ;;
-
-done
-echo "Done."
+    case "$1" in
+      macos)
+        pkgs=(nvim shell wmmacos tmux)
+        ;;
+      linux)
+        pkgs=(ags asound bar dwmconfig hyprsuite menus notifications nvim qtile shell sway terminal tmux)
+        ;;
+      windows)
+        pkgs=(nvim shell)
+        ;;
+      *)
+        usage
+        ;;
+    esac
 
 echo "Applying stow for: ${pkgs[*]}"
 # Prevent accidental double execution
