@@ -66,7 +66,7 @@ for pkg in "${pkgs[@]}"; do
     stow -n -v -t "$HOME" "$pkg" | tee "/tmp/stow-preview-$pkg.txt"
 
     # Check for potential conflicts (lines with 'existing' or 'WARNING')
-    if grep -qE 'existing|conflict|WARNING' "/tmp/stow-preview-$pkg.txt"; then
+      if grep -qE 'existing|conflict|WARNING|cannot stow' "/tmp/stow-preview-$pkg.txt"; then
       echo "Potential conflicts detected for $pkg."
       if [ "$GUM" -eq 1 ]; then
         gum confirm "Do you want to back up and overwrite existing files for $pkg?" || { echo "Skipping $pkg."; continue; }
@@ -77,16 +77,32 @@ for pkg in "${pkgs[@]}"; do
           *) echo "Skipping $pkg."; continue ;;
         esac
       fi
-      # Parse the preview output for files to be replaced
-      grep 'existing' "/tmp/stow-preview-$pkg.txt" | awk '{print $NF}' | while read -r f; do
-        if [ -e "$f" ]; then
-          backup="$f.backup.$(date +%Y%m%d%H%M%S)"
-          echo "Backing up $f to $backup"
-          mv -- "$f" "$backup"
+        # Back up and remove files that would block stow (cannot stow ... over existing target ...)
+        grep -Eo 'over existing target [^ ]+' /tmp/stow-preview-$pkg.txt | awk '{print $4}' | while read -r f; do
+          if [ -e "$f" ]; then
+            backup="$f.backup.$(date +%Y%m%d%H%M%S)"
+            echo "Backing up $f to $backup"
+            mv -- "$f" "$backup"
+          fi
+        done
+        # Also handle 'existing' lines (for completeness)
+        grep 'existing' "/tmp/stow-preview-$pkg.txt" | awk '{print $NF}' | while read -r f; do
+          if [ -e "$f" ]; then
+            backup="$f.backup.$(date +%Y%m%d%H%M%S)"
+            echo "Backing up $f to $backup"
+            mv -- "$f" "$backup"
+          fi
+        done
+        # Rerun stow preview to ensure conflicts are resolved
+        echo "Re-running stow preview for $pkg after backup/removal..."
+        stow -n -v -t "$HOME" "$pkg" | tee "/tmp/stow-preview-$pkg.txt"
+        if grep -qE 'cannot stow|conflict|WARNING|existing' "/tmp/stow-preview-$pkg.txt"; then
+          echo "Conflicts still remain for $pkg after backup/removal. Skipping."
+          rm -f "/tmp/stow-preview-$pkg.txt"
+          continue
         fi
-      done
-      echo "Stowing $pkg (with backup)..."
-      stow -t "$HOME" "$pkg"
+        echo "Stowing $pkg (with backup)..."
+        stow -t "$HOME" "$pkg"
     else
       if [ "$GUM" -eq 1 ]; then
         gum confirm "No conflicts for $pkg. Proceed with stow?" || { echo "Skipping $pkg."; continue; }
