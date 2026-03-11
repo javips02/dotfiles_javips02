@@ -90,7 +90,7 @@ require("lazy").setup({
 	{   -- Treesitter (parsers)
 		"nvim-treesitter/nvim-treesitter",
 		config = function()
-			require("nvim-treesitter.configs").setup({
+			require("nvim-treesitter.config").setup({
 				-- First 5 crucial to have
 				ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
 				auto_install = true, -- Automatically install missing parsers when entering buffer
@@ -133,6 +133,7 @@ require("lazy").setup({
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-textobjects",
+		dependencies = { "nvim-treesitter/nvim-treesitter" },
 	},
 	{ -- telscope: para fuzzyfinding de archivos TODO: revisar fxf-native para nvim para mejor rendimiento con el fuzzyfinding
 		'nvim-telescope/telescope.nvim',
