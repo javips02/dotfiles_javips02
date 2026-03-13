@@ -127,5 +127,34 @@ for pkg in "${pkgs[@]}"; do
   fi
 done
 
+# --- Post-stow setup for macOS ---
+if [ "$1" = "macos" ]; then
+  # Create ~/.local/bin if it doesn't exist
+  mkdir -p "$HOME/.local/bin"
+  
+  # Symlink shell bin scripts to ~/.local/bin
+  if [ -d "$HOME/.dotfiles/shell/bin" ]; then
+    for script in "$HOME/.dotfiles/shell/bin"/*; do
+      if [ -f "$script" ]; then
+        script_name=$(basename "$script")
+        symlink="$HOME/.local/bin/$script_name"
+        
+        # Create or update symlink
+        if [ -L "$symlink" ] || [ -e "$symlink" ]; then
+          rm -f "$symlink"
+        fi
+        
+        ln -s "$script" "$symlink"
+        chmod +x "$script"
+        
+        if [ "$GUM" -eq 1 ]; then
+          echo "✓ Linked $script_name to ~/.local/bin"
+        else
+          echo "Linked $script_name to ~/.local/bin"
+        fi
+      fi
+    done
+  fi
+fi
 
 echo "Done."

@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+# brew-cool-upgrade: A friendly, TUI Homebrew upgrade experience using charm.sh tools
+
+set -e
+
+# --- Config ---
+GUM_CMD="gum"
+GLAMOUR_CMD="glamour"
+BREW_CMD="brew"
+
+# --- Functions ---
+
+# Check for required commands
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "❌ Required command '$1' not found. Please install it first."
+    exit 1
+  fi
+}
+
+# Render markdown with glamour if available, else cat
+render_md() {
+  if command -v "$GLAMOUR_CMD" >/dev/null 2>&1; then
+    "$GLAMOUR_CMD" -t dark
+  else
+    cat
+  fi
+}
+
+# --- Checks ---
+require_cmd "$BREW_CMD"
+require_cmd "$GUM_CMD"
+
+# --- Welcome Screen ---
+clear
+brew_version="$($BREW_CMD --version | head -n1)"
+brew_prefix="$($BREW_CMD --prefix)"
+outdated="$($BREW_CMD outdated --verbose || true)"
+outdated_count=$(echo "$outdated" | grep -cE '^[a-zA-Z0-9]')
+
+cat <<EOF | render_md
+# 🍺 Brew Cool Upgrade
+
+**$brew_version**
+Homebrew prefix: \`$brew_prefix\`
+
+$(if [ "$outdated_count" -eq 0 ]; then
+  echo "✨ **Everything is up to date!**"
+else
+  echo "🔄 **$outdated_count package(s) can be upgraded.**"
+fi)
+
+---
+EOF
+
+if [ "$outdated_count" -eq 0 ]; then
+  exit 0
+fi
+
+# Prompt for action
+action=$($GUM_CMD choose --cursor "👉" --header "What would you like to do?" "Start Upgrade" "Show Outdated Packages" "Quit")
+case "$action" in
+  "Quit") exit 0 ;;
+  "Show Outdated Packages")
+    echo "$outdated" | $GUM_CMD format
+    $GUM_CMD confirm "Start upgrade now?" || exit 0
+    ;;
+esac
+
+# --- Update Step ---
+$GUM_CMD spin --spinner dot --title "Running brew update..." -- $BREW_CMD update
+
+# --- Upgrade Step ---
+upgraded=()
+failed=()
+already_latest=()
+
+# Parse outdated list for upgrade targets
+mapfile -t pkgs < <(echo "$outdated" | awk '{print $1}')
+
+for pkg in "${pkgs[@]}"; do
+  $GUM_CMD spin --spinner line --title "Upgrading $pkg..." -- $BREW_CMD upgrade "$pkg" && upgraded+=("$pkg") || failed+=("$pkg")
+done
+
+# --- Final Summary ---
+cat <<EOF | render_md
+# 📝 Upgrade Summary
+
+$(if [ "${#upgraded[@]}" -gt 0 ]; then
+  echo "## ✅ Upgraded Packages"
+  for pkg in "${upgraded[@]}"; do
+    echo "- $pkg"
+  done
+else
+  echo "✨ All packages were already up to date!"
+fi)
+
+$(if [ "${#failed[@]}" -gt 0 ]; then
+  echo "## ❌ Failed Upgrades"
+  for pkg in "${failed[@]}"; do
+    echo "- $pkg"
+  done
+  echo ""
+  echo "Try running \`brew upgrade <package>\` manually for details."
+fi)
+
+---
+Thank you for using **brew-cool-upgrade**! 🍻
+EOF
+
+exit 0
