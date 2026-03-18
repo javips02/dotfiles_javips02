@@ -2,6 +2,105 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+cd "$SCRIPT_DIR"
+
+if ! command -v stow >/dev/null 2>&1; then
+  echo "Error: GNU Stow is required but was not found in PATH." >&2
+  exit 2
+fi
+
+backup_path() {
+  local path="$1"
+  local backup="${path}.backup.$(date +%Y%m%d%H%M%S)"
+
+  echo "Backing up $path to $backup"
+  mv "$path" "$backup"
+}
+
+resolve_path() {
+  local path="$1"
+
+  if [ -d "$path" ]; then
+    (
+      cd -P -- "$path"
+      pwd -P
+    )
+    return
+  fi
+
+  (
+    cd -P -- "$(dirname -- "$path")"
+    printf '%s/%s\n' "$(pwd -P)" "$(basename -- "$path")"
+  )
+}
+
+resolve_symlink_target() {
+  local path="$1"
+  local target=""
+
+  target="$(readlink "$path")" || return 1
+
+  if [[ "$target" = /* ]]; then
+    resolve_path "$target"
+    return
+  fi
+
+  (
+    cd -P -- "$(dirname -- "$path")"
+    resolve_path "$target"
+  )
+}
+
+repair_repo_symlink_conflicts() {
+  local pkg="$1"
+  local relpath=""
+  local target=""
+  local expected=""
+  local actual=""
+
+  while IFS= read -r relpath; do
+    if [[ "$relpath" != */* ]]; then
+      continue
+    fi
+
+    target="$HOME/$relpath"
+
+    if [ ! -L "$target" ]; then
+      continue
+    fi
+
+    expected="$(resolve_path "$SCRIPT_DIR/$pkg/$relpath")"
+    actual="$(resolve_symlink_target "$target")"
+
+    if [[ "$actual" == "$SCRIPT_DIR"/* ]] && [ "$actual" != "$expected" ]; then
+      echo "Found stale repo symlink for $relpath: $target -> $actual"
+      backup_path "$target"
+    fi
+  done < <(
+    find "$pkg" -mindepth 1 \
+      ! -path '*/README.md' \
+      ! -path '*/README.*' \
+      ! -path '*/LICENSE' \
+      ! -name '*.md' \
+      ! -name '.DS_Store' \
+      -print | sed "s#^$pkg/##" | sort -u
+  )
+}
+
+run_stow_preview() {
+  local pkg="$1"
+  local preview_file="$2"
+  local exit_code=0
+
+  set +e
+  stow -n -v --ignore='(^|/).*\.md$' -t "$HOME" "$pkg" 2>&1 | tee "$preview_file"
+  exit_code=${PIPESTATUS[0]}
+  set -e
+
+  return "$exit_code"
+}
+
 # Check for gum (for pretty output)
 if command -v gum >/dev/null 2>&1; then
   GUM=1
@@ -52,6 +151,8 @@ echo "Done."
 
 for pkg in "${pkgs[@]}"; do
   if [ -d "$pkg" ]; then
+    preview_file="$(mktemp "/tmp/stow-preview-${pkg}.XXXXXX")"
+
     # Show package README.md with gum style if available
     if [ -f "$pkg/README.md" ]; then
       echo
@@ -63,10 +164,21 @@ for pkg in "${pkgs[@]}"; do
     fi
     echo
     echo "Previewing stow for $pkg..."
-    stow -n -v -t "$HOME" "$pkg" | tee "/tmp/stow-preview-$pkg.txt"
+    repair_repo_symlink_conflicts "$pkg"
+
+    preview_failed=0
+    if ! run_stow_preview "$pkg" "$preview_file"; then
+      preview_failed=1
+    fi
+
+    if [ "$preview_failed" -eq 1 ] && ! grep -qE 'existing|conflict|cannot stow|over existing target' "$preview_file"; then
+      echo "Error: stow preview failed unexpectedly for $pkg. Skipping."
+      rm -f "$preview_file"
+      continue
+    fi
 
     # Check for potential conflicts (lines with 'existing' or 'WARNING')
-      if grep -qE 'existing|conflict|WARNING|cannot stow' "/tmp/stow-preview-$pkg.txt"; then
+      if grep -qE 'existing|conflict|cannot stow|over existing target' "$preview_file"; then
       echo "Potential conflicts detected for $pkg."
       if [ "$GUM" -eq 1 ]; then
         gum confirm "Do you want to back up and overwrite existing files for $pkg?" || { echo "Skipping $pkg."; continue; }
@@ -78,42 +190,41 @@ for pkg in "${pkgs[@]}"; do
         esac
       fi
         # Back up and remove files that would block stow (cannot stow ... over existing target ...)
-        grep -Eo 'over existing target [^ ]+' /tmp/stow-preview-$pkg.txt | awk '{print $4}' | while read -r f; do
+        grep -Eo 'over existing target [^ ]+' "$preview_file" | awk '{print $4}' | while read -r f; do
           if [ -e "$f" ]; then
-            backup="$f.backup.$(date +%Y%m%d%H%M%S)"
-            echo "Backing up $f to $backup"
-            mv -- "$f" "$backup"
+            backup_path "$f"
           fi
         done
         # Also handle 'existing' lines (for completeness)
-        grep 'existing' "/tmp/stow-preview-$pkg.txt" | awk '{print $NF}' | while read -r f; do
-          if [ -e "$f" ]; then
-            backup="$f.backup.$(date +%Y%m%d%H%M%S)"
-            echo "Backing up $f to $backup"
-            mv -- "$f" "$backup"
+        grep 'existing' "$preview_file" | awk '{print $NF}' | while read -r f; do
+          if [ -e "$f" ] || [ -L "$f" ]; then
+            backup_path "$f"
           fi
         done
         # Rerun stow preview to ensure conflicts are resolved
         echo "Re-running stow preview for $pkg after backup/removal..."
-        stow -n -v -t "$HOME" "$pkg" | tee "/tmp/stow-preview-$pkg.txt"
-        if grep -qE 'cannot stow|conflict|WARNING|existing' "/tmp/stow-preview-$pkg.txt"; then
+        preview_failed=0
+        if ! run_stow_preview "$pkg" "$preview_file"; then
+          preview_failed=1
+        fi
+        if [ "$preview_failed" -eq 1 ] || grep -qE 'cannot stow|conflict|existing|over existing target' "$preview_file"; then
           echo "Conflicts still remain for $pkg after backup/removal. Skipping."
-          rm -f "/tmp/stow-preview-$pkg.txt"
+          rm -f "$preview_file"
           continue
         fi
         echo "Stowing $pkg (with backup)..."
-        stow -t "$HOME" "$pkg"
+        stow --ignore='(^|/).*\.md$' -t "$HOME" "$pkg"
     else
       if [ "$GUM" -eq 1 ]; then
         gum confirm "No conflicts for $pkg. Proceed with stow?" || { echo "Skipping $pkg."; continue; }
         echo "Stowing $pkg..."
-        stow -t "$HOME" "$pkg"
+        stow --ignore='(^|/).*\.md$' -t "$HOME" "$pkg"
       else
         read -r -p "No conflicts for $pkg. Proceed with stow? [y/N]: " confirm
         case "$confirm" in
           [Yy]*)
             echo "Stowing $pkg..."
-            stow -t "$HOME" "$pkg"
+            stow --ignore='(^|/).*\.md$' -t "$HOME" "$pkg"
             ;;
           *)
             echo "Skipping $pkg."
@@ -121,7 +232,7 @@ for pkg in "${pkgs[@]}"; do
         esac
       fi
     fi
-    rm -f "/tmp/stow-preview-$pkg.txt"
+    rm -f "$preview_file"
   else
     echo "Warning: package $pkg does not exist, skipping."
   fi
@@ -133,8 +244,8 @@ if [ "$1" = "macos" ]; then
   mkdir -p "$HOME/.local/bin"
   
   # Symlink shell bin scripts to ~/.local/bin
-  if [ -d "$HOME/.dotfiles/shell/bin" ]; then
-    for script in "$HOME/.dotfiles/shell/bin"/*; do
+  if [ -d "$SCRIPT_DIR/shell/bin" ]; then
+    for script in "$SCRIPT_DIR/shell/bin"/*; do
       if [ -f "$script" ]; then
         script_name=$(basename "$script")
         symlink="$HOME/.local/bin/$script_name"
