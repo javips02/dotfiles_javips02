@@ -155,6 +155,19 @@ if [ "$1" = "macos" ]; then
       fi
     done
   fi
+
+  # Install zoxide if not present
+  if ! command -v zoxide >/dev/null 2>&1; then
+    echo "zoxide not found. Installing with Homebrew..."
+    if command -v brew >/dev/null 2>&1; then
+      brew install zoxide
+      echo "zoxide installed."
+    else
+      echo "Homebrew not found. Please install Homebrew first: https://brew.sh/"
+    fi
+  else
+    echo "zoxide is already installed."
+  fi
 fi
 
 echo "Done."
