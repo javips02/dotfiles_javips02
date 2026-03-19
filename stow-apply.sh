@@ -289,6 +289,19 @@ if [ "$1" = "macos" ]; then
   else
     echo "zoxide is already installed."
   fi
+
+  # Install tmux if not present (ensure tmux is available for macOS users)
+  if ! command -v tmux >/dev/null 2>&1; then
+    echo "tmux not found. Installing with Homebrew..."
+    if command -v brew >/dev/null 2>&1; then
+      brew install tmux
+      echo "tmux installed."
+    else
+      echo "Homebrew not found. Please install Homebrew first: https://brew.sh/"
+    fi
+  else
+    echo "tmux is already installed."
+  fi
 fi
 
 echo "Done."
