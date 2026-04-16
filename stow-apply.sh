@@ -124,8 +124,18 @@ usage() {
       usage
     fi
 
+
     case "$1" in
       macos)
+        # Install tldr if not present
+        if ! command -v tldr >/dev/null 2>&1; then
+          echo "Installing tldr (brew)..."
+          if command -v brew >/dev/null 2>&1; then
+            brew install tldr
+          else
+            echo "Homebrew not found. Please install tldr manually."
+          fi
+        fi
         pkgs=(nvim shell wmmacos tmux)
         ;;
       linux)
@@ -265,6 +275,32 @@ if [ "$1" = "macos" ]; then
         fi
       fi
     done
+  fi
+
+  # Install zoxide if not present
+  if ! command -v zoxide >/dev/null 2>&1; then
+    echo "zoxide not found. Installing with Homebrew..."
+    if command -v brew >/dev/null 2>&1; then
+      brew install zoxide
+      echo "zoxide installed."
+    else
+      echo "Homebrew not found. Please install Homebrew first: https://brew.sh/"
+    fi
+  else
+    echo "zoxide is already installed."
+  fi
+
+  # Install tmux if not present (ensure tmux is available for macOS users)
+  if ! command -v tmux >/dev/null 2>&1; then
+    echo "tmux not found. Installing with Homebrew..."
+    if command -v brew >/dev/null 2>&1; then
+      brew install tmux
+      echo "tmux installed."
+    else
+      echo "Homebrew not found. Please install Homebrew first: https://brew.sh/"
+    fi
+  else
+    echo "tmux is already installed."
   fi
 fi
 
