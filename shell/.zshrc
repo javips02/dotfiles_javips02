@@ -6,7 +6,7 @@ alias v="nvim"
 alias hendrix="ssh a815877@hendrix-ssh.cps.unizar.es"
 alias central='ssh a815877@central.cps.unizar.es'
 alias lab000="ssh a815877@lab000.cps.unizar.es"
-alias update="~/.config/scripts/updateMacOS.sh"
+alias update="~/.dotfiles/shell/brew-cool-upgrade"
 alias lua="luajit"
 #Variables de entorno PATH
 export JAVA_HOME="/opt/homebrew/Cellar/openjdk@21/21.0.7/"
@@ -60,3 +60,4 @@ compinit
 # <<< conda initialize <<<
 
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export PATH="$HOME/.local/bin:$PATH"
