@@ -89,8 +89,10 @@ require("lazy").setup({
 	},
 	{   -- Treesitter (parsers)
 		"nvim-treesitter/nvim-treesitter",
+		branch = "master",
+		build = ":TSUpdate",
 		config = function()
-			require("nvim-treesitter.config").setup({
+			require("nvim-treesitter.configs").setup({
 				-- First 5 crucial to have
 				ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
 				auto_install = true, -- Automatically install missing parsers when entering buffer
