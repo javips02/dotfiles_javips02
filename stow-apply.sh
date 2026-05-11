@@ -200,13 +200,16 @@ for pkg in "${pkgs[@]}"; do
         esac
       fi
         # Back up and remove files that would block stow (cannot stow ... over existing target ...)
+        # stow reports conflict paths relative to the target ($HOME), so resolve them
         grep -Eo 'over existing target [^ ]+' "$preview_file" | awk '{print $4}' | while read -r f; do
+          [[ "$f" != /* ]] && f="$HOME/$f"
           if [ -e "$f" ]; then
             backup_path "$f"
           fi
         done
-        # Also handle 'existing' lines (for completeness)
-        grep 'existing' "$preview_file" | awk '{print $NF}' | while read -r f; do
+        # Also handle 'existing target is not owned by stow: <path>' lines
+        grep -E 'existing target' "$preview_file" | grep -Eo '[^ ]+$' | while read -r f; do
+          [[ "$f" != /* ]] && f="$HOME/$f"
           if [ -e "$f" ] || [ -L "$f" ]; then
             backup_path "$f"
           fi
