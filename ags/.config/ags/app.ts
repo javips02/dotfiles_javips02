@@ -1,11 +1,15 @@
-import { App, Gtk, Gdk } from "astal/gtk4";
+import app from "./shellApp"
 import style from "./style.scss"
 import Bar from "./widget/Bar"
 
-App.start({
+app.start({
     css: style,
-    iconTheme: "Papirus",  // Set icon theme directly in config
+    iconTheme: "Papirus",
     main() {
-        App.get_monitors().map(Bar);
+        app.get_monitors().forEach((monitor) => {
+            const win = Bar(monitor, app)
+            app.add_window(win)
+            win.present()
+        })
     },
 })

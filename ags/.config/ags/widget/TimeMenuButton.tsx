@@ -1,7 +1,7 @@
 import { Gtk } from "astal/gtk4"
-import { Variable } from "astal"
+import GLib from "gi://GLib?version=2.0"
 
-const time = Variable("").poll(5000, () => {
+function formatTime() {
     const now = new Date()
     const options: Intl.DateTimeFormatOptions = {
         weekday: "short",
@@ -13,16 +13,25 @@ const time = Variable("").poll(5000, () => {
     }
     const formattedTime = now.toLocaleDateString(undefined, options)
     return `󰃭  ${formattedTime.replace(",", ",").replace(" at ", "  󰥔 ")}`
-})
+}
 
 export function TimeMenuButton() {
-    return (
-        <menubutton
-        >
-            <label label={time()} />
-            <popover>
-                <Gtk.Calendar />
-            </popover>
-        </menubutton>
-    )
+    const button = Gtk.MenuButton.new()
+    const label = Gtk.Label.new(formatTime())
+    const popover = Gtk.Popover.new()
+
+    popover.set_child(Gtk.Calendar.new())
+    button.set_child(label)
+    button.set_popover(popover)
+
+    const sourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
+        label.set_label(formatTime())
+        return true
+    })
+
+    button.connect("destroy", () => {
+        GLib.Source.remove(sourceId)
+    })
+
+    return button
 }

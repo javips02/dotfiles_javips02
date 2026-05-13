@@ -1,9 +1,13 @@
 import Network from "gi://AstalNetwork"
+import Gio from "gi://Gio?version=2.0"
 import { Gtk } from "astal/gtk4"
-import { exec, execAsync } from "astal/process"
 
 export function Network_icon() {
     const network = Network.get_default();
+
+    const launchNetworkManager = () => {
+        Gio.Subprocess.new(["ghostty", "-e", "nmtui"], Gio.SubprocessFlags.NONE)
+    }
     
     // Create widgets for a button with icon and label
     const button = Gtk.Button.new();
@@ -57,7 +61,7 @@ export function Network_icon() {
     }
 
     // Click handler - Show notification with network info
-    button.connect("clicked", async () => {
+    button.connect("clicked", () => {
         // Debug info commented out for future use
         // Build a message with relevant network info
         let message = "Network Information\n------------------\n";
@@ -74,14 +78,10 @@ export function Network_icon() {
         console.log("Network Status", message);
         
         try {
-            await execAsync(["ghostty", "-e", "nmtui"]);
+            launchNetworkManager()
+            updateNetworkStatus()
         } catch (error) {
-            console.error('Failed to launch network manager:', error);
-        }
-        try {
-            await updateNetworkStatus();
-        } catch (error) {
-            console.error('Failed to update network status:', error);
+            console.error('Failed to handle network click:', error);
         }
     });
 

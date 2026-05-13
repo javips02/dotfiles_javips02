@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ENTRYPOINT="$ROOT_DIR/app.ts"
+GI_NAMESPACES=(AstalHyprland AstalWp AstalNotifd AstalTray AstalNetwork AstalBattery)
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ags-shell run
+  ags-shell bundle [output_path]
+  ags-shell setup
+  ags-shell doctor
+
+Commands:
+  run                 Run the AGS project directly with `ags run --gtk 4`
+  bundle [path]       Build a single executable with `ags bundle --gtk 4`
+                      Default output: ~/.local/bin/ags-shell-bin
+  setup               Install/repair JS runtime deps used by this project
+  doctor              Show dependency status and useful diagnostics
+EOF
+}
+
+ensure_deps() {
+  if ! command -v npm >/dev/null 2>&1; then
+    echo "Error: 'npm' is required to install project dependencies." >&2
+    exit 1
+  fi
+
+  local needs_install=0
+  [[ -d "$ROOT_DIR/node_modules" ]] || needs_install=1
+  [[ -f "$ROOT_DIR/node_modules/astal/package.json" ]] || needs_install=1
+  [[ -f "$ROOT_DIR/node_modules/gnim/package.json" ]] || needs_install=1
+  [[ -x "$ROOT_DIR/node_modules/.bin/sass" ]] || needs_install=1
+
+  if [[ "$needs_install" -eq 1 ]]; then
+    echo "Installing missing JS dependencies..."
+    (cd "$ROOT_DIR" && npm install --no-audit --no-fund)
+  fi
+
+  if [[ ! -f "$ROOT_DIR/node_modules/astal/package.json" ]]; then
+    echo "Error: failed to install AGS runtime module ('astal')." >&2
+    exit 1
+  fi
+
+  if [[ ! -x "$ROOT_DIR/node_modules/.bin/sass" ]]; then
+    echo "Error: failed to install Sass CLI." >&2
+    exit 1
+  fi
+}
+
+check_gi_namespace() {
+  local ns="$1"
+  gjs -c "const _m = imports.gi.${ns};" >/dev/null 2>&1
+}
+
+collect_missing_gi() {
+  local missing=()
+  local ns
+  for ns in "${GI_NAMESPACES[@]}"; do
+    if ! check_gi_namespace "$ns"; then
+      missing+=("$ns")
+    fi
+  done
+  if [[ "${#missing[@]}" -gt 0 ]]; then
+    printf '%s\n' "${missing[@]}"
+  fi
+}
+
+print_gi_install_hint() {
+  cat >&2 <<'EOF'
+Install the missing Astal GI modules for your distro.
+
+Example package names (Arch/AUR, may vary):
+  libastal-hyprland-git libastal-wireplumber-git libastal-notifd-git
+  libastal-tray-git libastal-network-git libastal-battery-git
+EOF
+}
+
+ensure_gi_modules() {
+  mapfile -t missing < <(collect_missing_gi)
+  if [[ "${#missing[@]}" -gt 0 ]]; then
+    echo "Error: missing GI namespaces: ${missing[*]}" >&2
+    print_gi_install_hint
+    exit 1
+  fi
+}
+
+if [[ "${1:-run}" == "-h" || "${1:-run}" == "--help" || "${1:-run}" == "help" ]]; then
+  usage
+  exit 0
+fi
+
+if ! command -v ags >/dev/null 2>&1; then
+  echo "Error: 'ags' CLI is not installed or not in PATH." >&2
+  echo "Install AGS first, then run this script again." >&2
+  exit 1
+fi
+
+case "${1:-run}" in
+  run)
+    ensure_deps
+    ensure_gi_modules
+    export PATH="$ROOT_DIR/node_modules/.bin:$PATH"
+    cd "$ROOT_DIR"
+    exec ags run --gtk 4 "$ENTRYPOINT"
+    ;;
+  bundle)
+    ensure_deps
+    ensure_gi_modules
+    export PATH="$ROOT_DIR/node_modules/.bin:$PATH"
+    cd "$ROOT_DIR"
+    OUT_PATH="${2:-$HOME/.local/bin/ags-shell-bin}"
+    mkdir -p "$(dirname "$OUT_PATH")"
+    ags bundle --gtk 4 "$ENTRYPOINT" "$OUT_PATH"
+    chmod +x "$OUT_PATH"
+    echo "Bundled executable created at: $OUT_PATH"
+    ;;
+  setup)
+    ensure_deps
+    echo "Dependencies are installed."
+    ;;
+  doctor)
+    echo "root: $ROOT_DIR"
+    echo "ags: $(command -v ags || echo missing)"
+    echo "npm: $(command -v npm || echo missing)"
+    echo "sass (system): $(command -v sass || echo missing)"
+    echo "node_modules: $([[ -d "$ROOT_DIR/node_modules" ]] && echo present || echo missing)"
+    echo "astal module: $([[ -f "$ROOT_DIR/node_modules/astal/package.json" ]] && echo present || echo missing)"
+    echo "gnim module: $([[ -f "$ROOT_DIR/node_modules/gnim/package.json" ]] && echo present || echo missing)"
+    echo "sass (project): $([[ -x "$ROOT_DIR/node_modules/.bin/sass" ]] && echo present || echo missing)"
+    for ns in "${GI_NAMESPACES[@]}"; do
+      if check_gi_namespace "$ns"; then
+        echo "GI $ns: present"
+      else
+        echo "GI $ns: missing"
+      fi
+    done
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac

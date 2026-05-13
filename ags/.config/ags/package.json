@@ -1,9 +1,11 @@
 {
     "name": "astal-shell",
     "dependencies": {
-        "astal": "/usr/share/astal/gjs"
+        "astal": "file:/usr/share/ags/js",
+        "gnim": "file:/usr/share/ags/js/node_modules/gnim"
     },
     "devDependencies": {
-        "@girs/gtk-4.0": "^4.18.3-4.0.0-beta.23"
+        "@girs/gtk-4.0": "^4.18.3-4.0.0-beta.23",
+        "sass": "^1.99.0"
     }
 }

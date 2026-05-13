@@ -1,4 +1,5 @@
-import { App, Astal, Gtk, Gdk } from "astal/gtk4"
+import { Astal, Gdk } from "astal/gtk4"
+import Gtk from "gi://Gtk?version=4.0"
 import { PowerMenu } from "./PowerMenu"
 import { TimeMenuButton } from "./TimeMenuButton"
 import { LogoButton } from "./LogoButton"
@@ -10,34 +11,32 @@ import { Ram_icon, Cpu_icon } from "./Performance"
 import { Tray_icon } from "./Tray"
 
 
-export default function Bar(gdkmonitor: Gdk.Monitor) {
+export default function Bar(gdkmonitor: Gdk.Monitor, application: Gtk.Application) {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
-    const { IGNORE } = Astal.Exclusivity
-    const { EXCLUSIVE } = Astal.Keymode
-    const { CENTER } = Gtk.Align
+    const { START, CENTER, END } = Gtk.Align
 
     return (
         <window
             visible
             cssClasses={["Bar"]}
             gdkmonitor={gdkmonitor}
+            application={application}
             exclusivity={Astal.Exclusivity.EXCLUSIVE}
             anchor={TOP | LEFT | RIGHT}
-            application={App}
             margin_top={0}
             margin_bottom={0}
         >
-            <centerbox cssName="centerbox">
-                <box>
-                    {[<Workspaces/>]}
+            <box cssName="centerbox" hexpand>
+                <box halign={START} hexpand>
+                    <Workspaces />
                 </box>
-                <box>
-                    {[<TimeMenuButton />]}
+                <box halign={CENTER} hexpand>
+                    <TimeMenuButton />
                 </box>
-                <box>
+                <box halign={END} hexpand>
                     <Tray_icon />
-                    < Cpu_icon />
-                    < Ram_icon />
+                    <Cpu_icon />
+                    <Ram_icon />
                     <Network_icon />
                     <Mic />
                     <Volume_icon />
@@ -45,7 +44,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
                     <PowerMenu />
                     <LogoButton />
                 </box>
-            </centerbox>
+            </box>
         </window>
     )
 }
