@@ -282,12 +282,17 @@ require("lazy").setup({
 				},
 			})
 
+			-- Inject cmp capabilities into all LSP servers before they enable
+			vim.lsp.config('*', {
+				capabilities = cmp_nvim_lsp.default_capabilities(),
+			})
+
 			-- Configurar mason-lspconfig con servidores LSP para instalar
 			mason_lspconfig.setup({
 				ensure_installed = {
 					'clangd',        -- C/C++
 					'pyright',       -- Python
-					'lua_ls',   	 -- Lua
+					'lua_ls',        -- Lua
 					'jdtls',         -- Java
 					'kotlin_language_server',  -- Kotlin
 					'bashls',        -- Bash
@@ -296,9 +301,10 @@ require("lazy").setup({
 					'html',          -- HTML
 					'sqlls',         -- SQL
 					'gopls',         -- Go
-					'bashls',        -- Bash
 				},
-				automatic_installation = true,
+				automatic_enable = {
+					exclude = { "jdtls" },  -- jdtls needs nvim-jdtls plugin
+				},
 			})
 
 			-- DAP setup
@@ -330,27 +336,21 @@ require("lazy").setup({
    -- 			automatic_installation = true,
    -- 		}
 
-			-- Configuración de null-ls
+			-- Configuración de null-ls (only register formatters whose executables exist)
+			local function maybe(source)
+				local cmd = source._opts and source._opts.command
+				if cmd and vim.fn.executable(cmd) == 1 then return source end
+			end
 			null_ls.setup({
-				sources = {
-					null_ls.builtins.formatting.clang_format,
-					null_ls.builtins.formatting.black,
-					null_ls.builtins.formatting.prettier,
-					null_ls.builtins.formatting.stylua,
-					null_ls.builtins.formatting.gofmt,
-					null_ls.builtins.formatting.sqlfluff,
-				},
+				sources = vim.tbl_filter(function(s) return s ~= nil end, {
+					maybe(null_ls.builtins.formatting.clang_format),
+					maybe(null_ls.builtins.formatting.black),
+					maybe(null_ls.builtins.formatting.prettier),
+					maybe(null_ls.builtins.formatting.stylua),
+					maybe(null_ls.builtins.formatting.gofmt),
+					maybe(null_ls.builtins.formatting.sqlfluff),
+				}),
 			})
-
-			-- Configurar manejadores para servidores LSP
-			--local capabilities = cmp_nvim_lsp.default_capabilities()
-			--mason_lspconfig.setup_handlers({
-			--	function(server_name)
-			--		lspconfig[server_name].setup({
-			--			capabilities = capabilities,
-			--		})
-			--	end,
-			--})
 
 			-- Configurar nvim-cmp
 			require('luasnip.loaders.from_vscode').lazy_load()
@@ -438,5 +438,72 @@ require("lazy").setup({
 --				vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
 --			end
 		end,
+	},
+	-- Avante: AI-powered inline edits and chat sidebar
+	{
+		"yetone/avante.nvim",
+		build = "make",
+		event = "VeryLazy",
+		version = false,
+		---@module 'avante'
+		---@type avante.Config
+		opts = {
+			provider = "ollama",
+			providers = {
+				ollama = {
+					model = "qwen3-coder:30b",
+					endpoint = "http://127.0.0.1:11434",
+					is_env_set = function()
+						return require("avante.providers.ollama").check_endpoint_alive()
+					end,
+					extra_request_body = {
+						options = {
+							temperature = 0.6,
+							num_ctx = 32768,
+						},
+					},
+				},
+				-- Switch with :AvanteSelectProvider
+				["ollama-gemma"] = {
+					__inherited_from = "ollama",
+					model = "gemma4:26b",
+					endpoint = "http://127.0.0.1:11434",
+					extra_request_body = {
+						options = {
+							temperature = 0.7,
+							num_ctx = 32768,
+						},
+					},
+				},
+			},
+			instructions_file = "avante.md",
+			behaviour = {
+				auto_suggestions = false,
+			},
+		},
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"MunifTanjim/nui.nvim",
+			"nvim-telescope/telescope.nvim",
+			"hrsh7th/nvim-cmp",
+			"nvim-tree/nvim-web-devicons",
+			{
+				"MeanderingProgrammer/render-markdown.nvim",
+				opts = { file_types = { "markdown", "Avante" } },
+				ft = { "markdown", "Avante" },
+			},
+			{
+				"HakonHarnes/img-clip.nvim",
+				event = "VeryLazy",
+				opts = {
+					default = {
+						embed_image_as_base64 = false,
+						prompt_for_file_name = false,
+						drag_and_drop = { insert_mode = true },
+						use_absolute_path = true,
+					},
+				},
+			},
+		},
 	},
 })

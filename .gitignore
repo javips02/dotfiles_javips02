@@ -1,2 +1,8 @@
 .config/gh
+.config/nvim/lazy-lock.json
 nvim/.config/nvim/lazy-lock.json
+
+# nvim runtime dirs — never track, provenance xattr causes EPERM
+.cache/nvim/
+.local/state/nvim/
+.local/share/nvim/
