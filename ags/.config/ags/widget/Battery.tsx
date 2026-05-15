@@ -1,57 +1,20 @@
 import Battery from "gi://AstalBattery"
 import { Gtk } from "astal/gtk4"
 import GLib from "gi://GLib"
-import Gio from "gi://Gio?version=2.0"
+import {
+    type PowerProfile,
+    getPowerProfileState,
+    powerProfileToLabel,
+    setPowerProfile,
+    subscribePowerProfileChanged,
+} from "./PowerProfile"
 
-type PowerProfile = "balanced" | "performance" | "power-saver"
-
-const PROFILE_CLASSES = [
+const PROFILE_CLASSES: readonly string[] = [
     "profile-balanced",
     "profile-performance",
     "profile-power-saver",
     "profile-unavailable",
 ]
-
-function runPowerProfilesctl(args: string[]): [boolean, string] {
-    if (!GLib.find_program_in_path("powerprofilesctl")) {
-        return [false, "powerprofilesctl not found in PATH"]
-    }
-
-    const command = Gio.Subprocess.new(
-        ["powerprofilesctl", ...args],
-        Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE | Gio.SubprocessFlags.SEARCH_PATH,
-    )
-    const [, stdout, stderr] = command.communicate_utf8(null, null)
-    if (!command.get_successful()) {
-        return [false, (stderr || stdout || "powerprofilesctl failed").trim()]
-    }
-    return [true, (stdout || "").trim()]
-}
-
-function parseProfile(raw: string): PowerProfile | null {
-    if (raw === "balanced" || raw === "performance" || raw === "power-saver") return raw
-    return null
-}
-
-function profileToLabel(profile: PowerProfile): string {
-    if (profile === "balanced") return "Balanced"
-    if (profile === "performance") return "Performance"
-    return "Power Saver"
-}
-
-function getActiveProfile(): [PowerProfile | null, string | null] {
-    const [ok, output] = runPowerProfilesctl(["get"])
-    if (!ok) return [null, output]
-    const profile = parseProfile(output)
-    if (!profile) return [null, `Unexpected profile: ${output}`]
-    return [profile, null]
-}
-
-function setActiveProfile(profile: PowerProfile): [boolean, string | null] {
-    const [ok, message] = runPowerProfilesctl(["set", profile])
-    if (!ok) return [false, message]
-    return [true, null]
-}
 
 function setProfileClass(widget: Gtk.Widget, profile: PowerProfile | null) {
     PROFILE_CLASSES.forEach((name) => widget.remove_css_class(name))
@@ -116,27 +79,27 @@ export function Battery_icon() {
     }
 
     const refreshPowerProfile = () => {
-        const [profile, error] = getActiveProfile()
-        if (!profile) {
+        const state = getPowerProfileState()
+        if (!state.available) {
             setProfileClass(button, null)
-            status.set_label(`Current: Unavailable (${error || "powerprofilesctl not ready"})`)
-            button.set_tooltip_text(`Power Profile: Unavailable (${error || "powerprofilesctl not ready"})`)
+            status.set_label(`Current: Unavailable (${state.error})`)
+            button.set_tooltip_text(`Power Profile: Unavailable (${state.error})`)
             setSelectorEnabled(false)
             return
         }
 
-        setProfileClass(button, profile)
-        status.set_label(`Current: ${profileToLabel(profile)}`)
-        button.set_tooltip_text(`Power Profile: ${profileToLabel(profile)}`)
+        setProfileClass(button, state.profile)
+        status.set_label(`Current: ${powerProfileToLabel(state.profile)}`)
+        button.set_tooltip_text(`Power Profile: ${powerProfileToLabel(state.profile)}`)
         setSelectorEnabled(true)
     }
 
     const applyProfile = (profile: PowerProfile) => {
-        const [ok, error] = setActiveProfile(profile)
-        if (!ok) {
-            status.set_label(`Current: Unavailable (${error || "failed to set profile"})`)
+        const result = setPowerProfile(profile)
+        if (!result.ok) {
+            status.set_label(`Current: Unavailable (${result.error || "failed to set profile"})`)
             setProfileClass(button, null)
-            button.set_tooltip_text(`Power Profile: Unavailable (${error || "failed to set profile"})`)
+            button.set_tooltip_text(`Power Profile: Unavailable (${result.error || "failed to set profile"})`)
             return
         }
         refreshPowerProfile()
@@ -158,9 +121,11 @@ export function Battery_icon() {
         refreshPowerProfile()
         return true
     })
+    const unsubscribe = subscribePowerProfileChanged(refreshPowerProfile)
 
     button.connect("destroy", () => {
         GLib.Source.remove(timerId)
+        unsubscribe()
     })
 
     return button

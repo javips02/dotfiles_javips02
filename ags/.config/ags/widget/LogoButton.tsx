@@ -1,5 +1,12 @@
 import { Gtk } from "astal/gtk4"
 import GLib from "gi://GLib?version=2.0"
+import {
+    type PowerProfile,
+    getPowerProfileState,
+    powerProfileToLabel,
+    setPowerProfile,
+    subscribePowerProfileChanged,
+} from "./PowerProfile"
 
 export function LogoButton() {
     const button = Gtk.MenuButton.new()
@@ -40,14 +47,69 @@ export function LogoButton() {
         return body
     }
 
-    const powerProfileBody = makeSection("Power Profile", "Unavailable - section not wired yet")
+    const powerProfileSection = Gtk.Box.new(Gtk.Orientation.VERTICAL, 4)
+    powerProfileSection.add_css_class("arch-panel-section")
+    const powerProfileTitle = Gtk.Label.new("Power Profile")
+    powerProfileTitle.set_xalign(0)
+    powerProfileTitle.add_css_class("arch-panel-section-title")
+    powerProfileSection.append(powerProfileTitle)
+    const powerProfileBody = Gtk.Label.new("Current: Loading...")
+    powerProfileBody.set_xalign(0)
+    powerProfileBody.add_css_class("arch-panel-section-body")
+    powerProfileSection.append(powerProfileBody)
+
+    const powerButtonRow = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 4)
+    powerButtonRow.add_css_class("arch-panel-option-row")
+    const powerButtons: Record<PowerProfile, Gtk.Button> = {
+        balanced: Gtk.Button.new_with_label("Balanced"),
+        performance: Gtk.Button.new_with_label("Performance"),
+        "power-saver": Gtk.Button.new_with_label("Power Saver"),
+    }
+    powerButtonRow.append(powerButtons.balanced)
+    powerButtonRow.append(powerButtons.performance)
+    powerButtonRow.append(powerButtons["power-saver"])
+    powerProfileSection.append(powerButtonRow)
+    root.append(powerProfileSection)
+
     const nowPlayingBody = makeSection("Now Playing", "Unavailable - section not wired yet")
     const userIdentityBody = makeSection("User Identity", "Unavailable - section not wired yet")
     const bluetoothBody = makeSection("Bluetooth Settings", "Unavailable - section not wired yet")
 
+    const setPowerButtonsEnabled = (enabled: boolean) => {
+        powerButtons.balanced.set_sensitive(enabled)
+        powerButtons.performance.set_sensitive(enabled)
+        powerButtons["power-saver"].set_sensitive(enabled)
+    }
+
+    const refreshPowerProfileSection = () => {
+        const state = getPowerProfileState()
+        if (!state.available) {
+            powerProfileBody.set_label(`Current: Unavailable (${state.error})`)
+            setPowerButtonsEnabled(false)
+            return
+        }
+
+        powerProfileBody.set_label(`Current: ${powerProfileToLabel(state.profile)}`)
+        setPowerButtonsEnabled(true)
+    }
+
+    const applyProfile = (profile: PowerProfile) => {
+        const result = setPowerProfile(profile)
+        if (!result.ok) {
+            powerProfileBody.set_label(`Current: Unavailable (${result.error || "failed to set profile"})`)
+            setPowerButtonsEnabled(false)
+            return
+        }
+        refreshPowerProfileSection()
+    }
+
+    powerButtons.balanced.connect("clicked", () => applyProfile("balanced"))
+    powerButtons.performance.connect("clicked", () => applyProfile("performance"))
+    powerButtons["power-saver"].connect("clicked", () => applyProfile("power-saver"))
+
     const refreshPanel = () => {
         const stamp = GLib.DateTime.new_now_local()?.format("%H:%M:%S") || "unknown time"
-        powerProfileBody.set_label(`Unavailable - section not wired yet (checked ${stamp})`)
+        refreshPowerProfileSection()
         nowPlayingBody.set_label(`Unavailable - section not wired yet (checked ${stamp})`)
         userIdentityBody.set_label(`Unavailable - section not wired yet (checked ${stamp})`)
         bluetoothBody.set_label(`Unavailable - section not wired yet (checked ${stamp})`)
@@ -67,6 +129,12 @@ export function LogoButton() {
         if (refreshTimer === null) return
         GLib.Source.remove(refreshTimer)
         refreshTimer = null
+    })
+    const unsubscribe = subscribePowerProfileChanged(refreshPowerProfileSection)
+
+    button.connect("destroy", () => {
+        if (refreshTimer !== null) GLib.Source.remove(refreshTimer)
+        unsubscribe()
     })
 
     button.set_popover(popover)

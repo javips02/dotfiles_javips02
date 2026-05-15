@@ -130,6 +130,11 @@ window.Bar {
         opacity: 0.9;
     }
 
+    .arch-panel-option-row button {
+        padding: 2px 8px;
+        margin: 0;
+    }
+
     popover contents,
     .action-popover contents {
         background: #000000;
