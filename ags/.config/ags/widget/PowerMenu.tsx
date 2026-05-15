@@ -7,9 +7,11 @@ function runCommand(argv: string[]) {
 
 export function PowerMenu(): JSX.Element {
     const menuButton = Gtk.MenuButton.new()
+    menuButton.add_css_class("power-menu")
     menuButton.set_child(Gtk.Label.new("󰤆"))
 
     const popover = Gtk.Popover.new()
+    popover.add_css_class("action-popover")
     const box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
     popover.set_child(box)
 
