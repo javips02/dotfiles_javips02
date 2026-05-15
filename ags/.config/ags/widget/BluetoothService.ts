@@ -40,6 +40,11 @@ export type BluetoothDeviceGroupsState =
       }
     | { available: false; error: string }
 
+export type BluetoothScanSessionState = {
+    active: boolean
+    endsAtUnixMs: number | null
+}
+
 const subscribers = new Set<() => void>()
 
 const operationState: BluetoothOperationState = {
@@ -47,6 +52,12 @@ const operationState: BluetoothOperationState = {
     currentAction: null,
     lastError: null,
 }
+
+const scanSessionState: BluetoothScanSessionState = {
+    active: false,
+    endsAtUnixMs: null,
+}
+let scanSessionTimeoutId: number | null = null
 
 function notifyChanged() {
     subscribers.forEach((callback) => callback())
@@ -152,6 +163,43 @@ export function getBluetoothDeviceGroupsState(): BluetoothDeviceGroupsState {
     const discovered = all.filter((device) => !pairedSet.has(device.address))
 
     return { available: true, connected, paired: pairedOnly, discovered }
+}
+
+export function getBluetoothScanSessionState(): BluetoothScanSessionState {
+    return { ...scanSessionState }
+}
+
+export function stopBluetoothScanSession(): BluetoothActionResult {
+    const result = runBluetoothAction("scan-off")
+    if (!result.ok) return result
+
+    scanSessionState.active = false
+    scanSessionState.endsAtUnixMs = null
+    if (scanSessionTimeoutId !== null) {
+        GLib.Source.remove(scanSessionTimeoutId)
+        scanSessionTimeoutId = null
+    }
+    notifyChanged()
+    return { ok: true, output: "Scan session stopped" }
+}
+
+export function startBluetoothScanSession(durationSeconds = 15): BluetoothActionResult {
+    if (scanSessionState.active) return { ok: true, output: "Scan session already active" }
+
+    const result = runBluetoothAction("scan-on")
+    if (!result.ok) return result
+
+    scanSessionState.active = true
+    scanSessionState.endsAtUnixMs = Date.now() + durationSeconds * 1000
+
+    if (scanSessionTimeoutId !== null) GLib.Source.remove(scanSessionTimeoutId)
+    scanSessionTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, durationSeconds * 1000, () => {
+        stopBluetoothScanSession()
+        return false
+    })
+
+    notifyChanged()
+    return { ok: true, output: `Scan session started (${durationSeconds}s)` }
 }
 
 export function getBluetoothSummaryState(): BluetoothSummaryState {

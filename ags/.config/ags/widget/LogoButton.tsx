@@ -13,8 +13,11 @@ import {
     canLaunchBluemanManager,
     getBluetoothDeviceGroupsState,
     getBluetoothOperationState,
+    getBluetoothScanSessionState,
     getBluetoothSummaryState,
     launchBluemanManager,
+    startBluetoothScanSession,
+    stopBluetoothScanSession,
     subscribeBluetoothOperationChanged,
 } from "./BluetoothService"
 
@@ -149,6 +152,9 @@ export function LogoButton() {
     const pairedGroup = makeBluetoothGroup("Paired")
     const discoveredGroup = makeBluetoothGroup("Discovered")
 
+    const scanButton = Gtk.Button.new_with_label("Scan (15s)")
+    bluetoothSection.append(scanButton)
+
     const bluetoothAction = Gtk.Button.new_with_label("Open blueman-manager")
     bluetoothSection.append(bluetoothAction)
     root.append(bluetoothSection)
@@ -207,6 +213,13 @@ export function LogoButton() {
         }
     })
 
+    scanButton.connect("clicked", () => {
+        const session = getBluetoothScanSessionState()
+        const result = session.active ? stopBluetoothScanSession() : startBluetoothScanSession(15)
+        if (!result.ok) bluetoothBody.set_label(`Unavailable (${result.error})`)
+        refreshBluetoothSection()
+    })
+
     const clearBoxChildren = (box: Gtk.Box) => {
         let child = box.get_first_child()
         while (child) {
@@ -240,10 +253,13 @@ export function LogoButton() {
         const bluetooth = getBluetoothSummaryState()
         const groups = getBluetoothDeviceGroupsState()
         const operation = getBluetoothOperationState()
+        const scanSession = getBluetoothScanSessionState()
 
         if (!managerAvailable) {
             bluetoothBody.set_label("Unavailable (blueman-manager not found in PATH)")
             bluetoothAction.set_sensitive(false)
+            scanButton.set_sensitive(false)
+            scanButton.set_label("Scan unavailable")
             renderBluetoothDevices(connectedGroup, [], "Unavailable")
             renderBluetoothDevices(pairedGroup, [], "Unavailable")
             renderBluetoothDevices(discoveredGroup, [], "Unavailable")
@@ -253,6 +269,8 @@ export function LogoButton() {
         if (!bluetooth.available) {
             bluetoothBody.set_label(`Unavailable (${bluetooth.error})`)
             bluetoothAction.set_sensitive(false)
+            scanButton.set_sensitive(false)
+            scanButton.set_label("Scan unavailable")
             renderBluetoothDevices(connectedGroup, [], "Unavailable")
             renderBluetoothDevices(pairedGroup, [], "Unavailable")
             renderBluetoothDevices(discoveredGroup, [], "Unavailable")
@@ -262,6 +280,8 @@ export function LogoButton() {
         if (!groups.available) {
             bluetoothBody.set_label(`Unavailable (${groups.error})`)
             bluetoothAction.set_sensitive(false)
+            scanButton.set_sensitive(false)
+            scanButton.set_label("Scan unavailable")
             renderBluetoothDevices(connectedGroup, [], "Unavailable")
             renderBluetoothDevices(pairedGroup, [], "Unavailable")
             renderBluetoothDevices(discoveredGroup, [], "Unavailable")
@@ -270,8 +290,11 @@ export function LogoButton() {
 
         const operationSuffix = operation.busy ? ` | Busy: ${operation.currentAction || "action"}` : ""
         const errorSuffix = operation.lastError ? ` | Last error: ${operation.lastError}` : ""
-        bluetoothBody.set_label(`Status: ${bluetooth.text}${operationSuffix}${errorSuffix}`)
+        const scanSuffix = scanSession.active ? " | Scan: active" : " | Scan: idle"
+        bluetoothBody.set_label(`Status: ${bluetooth.text}${scanSuffix}${operationSuffix}${errorSuffix}`)
         bluetoothAction.set_sensitive(!operation.busy)
+        scanButton.set_sensitive(!operation.busy)
+        scanButton.set_label(scanSession.active ? "Stop Scan" : "Scan (15s)")
         renderBluetoothDevices(connectedGroup, groups.connected, "No connected devices")
         renderBluetoothDevices(pairedGroup, groups.paired, "No paired devices")
         renderBluetoothDevices(discoveredGroup, groups.discovered, "No discovered devices")
