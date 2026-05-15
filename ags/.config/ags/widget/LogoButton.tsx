@@ -11,11 +11,14 @@ import { getNowPlayingState } from "./NowPlaying"
 import {
     type BluetoothDevice,
     canLaunchBluemanManager,
+    connectBluetoothDevice,
+    disconnectBluetoothDevice,
     getBluetoothDeviceGroupsState,
     getBluetoothOperationState,
     getBluetoothScanSessionState,
     getBluetoothSummaryState,
     launchBluemanManager,
+    pairBluetoothDevice,
     startBluetoothScanSession,
     stopBluetoothScanSession,
     subscribeBluetoothOperationChanged,
@@ -229,7 +232,12 @@ export function LogoButton() {
         }
     }
 
-    const renderBluetoothDevices = (box: Gtk.Box, devices: BluetoothDevice[], emptyText: string) => {
+    const renderBluetoothDevices = (
+        box: Gtk.Box,
+        devices: BluetoothDevice[],
+        emptyText: string,
+        action: "connect" | "disconnect" | "pair",
+    ) => {
         clearBoxChildren(box)
         if (devices.length === 0) {
             const empty = Gtk.Label.new(emptyText)
@@ -239,11 +247,30 @@ export function LogoButton() {
             return
         }
 
+        const runDeviceAction = (device: BluetoothDevice) => {
+            if (action === "connect") return connectBluetoothDevice(device.address)
+            if (action === "disconnect") return disconnectBluetoothDevice(device.address)
+            return pairBluetoothDevice(device.address)
+        }
+
         devices.forEach((device) => {
-            const row = Gtk.Label.new(`${device.name} (${device.address})`)
-            row.set_xalign(0)
-            row.set_wrap(true)
-            row.add_css_class("arch-panel-section-body")
+            const row = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
+            const details = Gtk.Label.new(`${device.name} (${device.address})`)
+            details.set_xalign(0)
+            details.set_wrap(true)
+            details.set_hexpand(true)
+            details.add_css_class("arch-panel-section-body")
+            row.append(details)
+
+            const actionLabel = action === "connect" ? "Connect" : action === "disconnect" ? "Disconnect" : "Pair"
+            const actionButton = Gtk.Button.new_with_label(actionLabel)
+            actionButton.connect("clicked", () => {
+                const result = runDeviceAction(device)
+                if (!result.ok) bluetoothBody.set_label(`Unavailable (${result.error})`)
+                else if (result.escalated) bluetoothBody.set_label("Status: Pairing confirmation opened in blueman-manager")
+                refreshBluetoothSection()
+            })
+            row.append(actionButton)
             box.append(row)
         })
     }
@@ -260,9 +287,9 @@ export function LogoButton() {
             bluetoothAction.set_sensitive(false)
             scanButton.set_sensitive(false)
             scanButton.set_label("Scan unavailable")
-            renderBluetoothDevices(connectedGroup, [], "Unavailable")
-            renderBluetoothDevices(pairedGroup, [], "Unavailable")
-            renderBluetoothDevices(discoveredGroup, [], "Unavailable")
+            renderBluetoothDevices(connectedGroup, [], "Unavailable", "disconnect")
+            renderBluetoothDevices(pairedGroup, [], "Unavailable", "connect")
+            renderBluetoothDevices(discoveredGroup, [], "Unavailable", "pair")
             return
         }
 
@@ -271,9 +298,9 @@ export function LogoButton() {
             bluetoothAction.set_sensitive(false)
             scanButton.set_sensitive(false)
             scanButton.set_label("Scan unavailable")
-            renderBluetoothDevices(connectedGroup, [], "Unavailable")
-            renderBluetoothDevices(pairedGroup, [], "Unavailable")
-            renderBluetoothDevices(discoveredGroup, [], "Unavailable")
+            renderBluetoothDevices(connectedGroup, [], "Unavailable", "disconnect")
+            renderBluetoothDevices(pairedGroup, [], "Unavailable", "connect")
+            renderBluetoothDevices(discoveredGroup, [], "Unavailable", "pair")
             return
         }
 
@@ -282,9 +309,9 @@ export function LogoButton() {
             bluetoothAction.set_sensitive(false)
             scanButton.set_sensitive(false)
             scanButton.set_label("Scan unavailable")
-            renderBluetoothDevices(connectedGroup, [], "Unavailable")
-            renderBluetoothDevices(pairedGroup, [], "Unavailable")
-            renderBluetoothDevices(discoveredGroup, [], "Unavailable")
+            renderBluetoothDevices(connectedGroup, [], "Unavailable", "disconnect")
+            renderBluetoothDevices(pairedGroup, [], "Unavailable", "connect")
+            renderBluetoothDevices(discoveredGroup, [], "Unavailable", "pair")
             return
         }
 
@@ -295,9 +322,9 @@ export function LogoButton() {
         bluetoothAction.set_sensitive(!operation.busy)
         scanButton.set_sensitive(!operation.busy)
         scanButton.set_label(scanSession.active ? "Stop Scan" : "Scan (15s)")
-        renderBluetoothDevices(connectedGroup, groups.connected, "No connected devices")
-        renderBluetoothDevices(pairedGroup, groups.paired, "No paired devices")
-        renderBluetoothDevices(discoveredGroup, groups.discovered, "No discovered devices")
+        renderBluetoothDevices(connectedGroup, groups.connected, "No connected devices", "disconnect")
+        renderBluetoothDevices(pairedGroup, groups.paired, "No paired devices", "connect")
+        renderBluetoothDevices(discoveredGroup, groups.discovered, "No discovered devices", "pair")
     }
 
     const refreshPanel = () => {

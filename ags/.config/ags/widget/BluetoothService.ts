@@ -45,6 +45,10 @@ export type BluetoothScanSessionState = {
     endsAtUnixMs: number | null
 }
 
+export type BluetoothDeviceActionResult =
+    | { ok: true; output: string; escalated?: boolean }
+    | { ok: false; error: string; escalated?: boolean; busy?: boolean }
+
 const subscribers = new Set<() => void>()
 
 const operationState: BluetoothOperationState = {
@@ -200,6 +204,54 @@ export function startBluetoothScanSession(durationSeconds = 15): BluetoothAction
 
     notifyChanged()
     return { ok: true, output: `Scan session started (${durationSeconds}s)` }
+}
+
+function requiresEscalatedPairing(error: string): boolean {
+    const lower = error.toLowerCase()
+    return (
+        lower.includes("passkey") ||
+        lower.includes("pin") ||
+        lower.includes("authentication") ||
+        lower.includes("confirm")
+    )
+}
+
+function stopScanSessionForAction(): BluetoothActionResult {
+    if (!scanSessionState.active) return { ok: true, output: "Scan already idle" }
+    return stopBluetoothScanSession()
+}
+
+export function connectBluetoothDevice(address: string): BluetoothDeviceActionResult {
+    const stopScan = stopScanSessionForAction()
+    if (!stopScan.ok) return stopScan
+    return runBluetoothAction("connect", address)
+}
+
+export function disconnectBluetoothDevice(address: string): BluetoothDeviceActionResult {
+    const stopScan = stopScanSessionForAction()
+    if (!stopScan.ok) return stopScan
+    return runBluetoothAction("disconnect", address)
+}
+
+export function pairBluetoothDevice(address: string): BluetoothDeviceActionResult {
+    const stopScan = stopScanSessionForAction()
+    if (!stopScan.ok) return stopScan
+
+    const pairResult = runBluetoothAction("pair", address)
+    if (!pairResult.ok) {
+        if (requiresEscalatedPairing(pairResult.error)) {
+            const launched = launchBluemanManager()
+            if (!launched.ok) {
+                return { ok: false, error: `Pairing requires confirmation; failed to launch blueman-manager: ${launched.error}` }
+            }
+            return { ok: true, output: "Pairing requires PIN/passkey confirmation. Escalated to blueman-manager.", escalated: true }
+        }
+        return pairResult
+    }
+
+    const trustResult = runBluetoothAction("trust", address)
+    if (!trustResult.ok) return trustResult
+    return { ok: true, output: "Paired and trusted device" }
 }
 
 export function getBluetoothSummaryState(): BluetoothSummaryState {
