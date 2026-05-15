@@ -8,7 +8,6 @@ type BluetoothAllowedAction =
     | "scan-on"
     | "scan-off"
     | "devices"
-    | "paired-devices"
     | "info"
     | "connect"
     | "disconnect"
@@ -25,6 +24,20 @@ export type BluetoothOperationState = {
 
 export type BluetoothSummaryState =
     | { available: true; text: string }
+    | { available: false; error: string }
+
+export type BluetoothDevice = {
+    address: string
+    name: string
+}
+
+export type BluetoothDeviceGroupsState =
+    | {
+          available: true
+          connected: BluetoothDevice[]
+          paired: BluetoothDevice[]
+          discovered: BluetoothDevice[]
+      }
     | { available: false; error: string }
 
 const subscribers = new Set<() => void>()
@@ -87,7 +100,6 @@ function actionToArgs(action: BluetoothAllowedAction, device?: string): string[]
     if (action === "scan-on") return ["scan", "on"]
     if (action === "scan-off") return ["scan", "off"]
     if (action === "devices") return ["devices"]
-    if (action === "paired-devices") return ["paired-devices"]
     if (!device) return null
     if (action === "info") return ["info", device]
     if (action === "connect") return ["connect", device]
@@ -103,6 +115,43 @@ export function runBluetoothAction(action: BluetoothAllowedAction, device?: stri
         return { ok: false, error: `Action ${action} requires a valid device address` }
     }
     return withActionLock(action, () => runBluetoothctl(args))
+}
+
+function parseDeviceList(output: string): BluetoothDevice[] {
+    return output
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.startsWith("Device "))
+        .map((line) => {
+            const [, address = "", ...nameParts] = line.split(/\s+/)
+            return { address, name: nameParts.join(" ") || address }
+        })
+        .filter((device) => !!device.address)
+}
+
+function listBluetoothDevices(filter?: "Paired" | "Connected" | "Trusted" | "Bonded"): BluetoothActionResult {
+    const args = filter ? ["devices", filter] : ["devices"]
+    return withActionLock(`devices${filter ? `-${filter}` : ""}`, () => runBluetoothctl(args))
+}
+
+export function getBluetoothDeviceGroupsState(): BluetoothDeviceGroupsState {
+    const allResult = listBluetoothDevices()
+    if (!allResult.ok) return { available: false, error: allResult.error }
+    const connectedResult = listBluetoothDevices("Connected")
+    if (!connectedResult.ok) return { available: false, error: connectedResult.error }
+    const pairedResult = listBluetoothDevices("Paired")
+    if (!pairedResult.ok) return { available: false, error: pairedResult.error }
+
+    const all = parseDeviceList(allResult.output)
+    const connected = parseDeviceList(connectedResult.output)
+    const paired = parseDeviceList(pairedResult.output)
+    const connectedSet = new Set(connected.map((device) => device.address))
+    const pairedSet = new Set(paired.map((device) => device.address))
+
+    const pairedOnly = paired.filter((device) => !connectedSet.has(device.address))
+    const discovered = all.filter((device) => !pairedSet.has(device.address))
+
+    return { available: true, connected, paired: pairedOnly, discovered }
 }
 
 export function getBluetoothSummaryState(): BluetoothSummaryState {

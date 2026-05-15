@@ -9,7 +9,9 @@ import {
 } from "./PowerProfile"
 import { getNowPlayingState } from "./NowPlaying"
 import {
+    type BluetoothDevice,
     canLaunchBluemanManager,
+    getBluetoothDeviceGroupsState,
     getBluetoothOperationState,
     getBluetoothSummaryState,
     launchBluemanManager,
@@ -125,6 +127,28 @@ export function LogoButton() {
     bluetoothBody.set_xalign(0)
     bluetoothBody.add_css_class("arch-panel-section-body")
     bluetoothSection.append(bluetoothBody)
+
+    const makeBluetoothGroup = (title: string) => {
+        const group = Gtk.Box.new(Gtk.Orientation.VERTICAL, 2)
+        group.add_css_class("arch-bluetooth-group")
+
+        const groupTitle = Gtk.Label.new(title)
+        groupTitle.set_xalign(0)
+        groupTitle.add_css_class("arch-panel-section-title")
+        group.append(groupTitle)
+
+        const listBox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 2)
+        listBox.add_css_class("arch-bluetooth-list")
+        group.append(listBox)
+
+        bluetoothSection.append(group)
+        return listBox
+    }
+
+    const connectedGroup = makeBluetoothGroup("Connected")
+    const pairedGroup = makeBluetoothGroup("Paired")
+    const discoveredGroup = makeBluetoothGroup("Discovered")
+
     const bluetoothAction = Gtk.Button.new_with_label("Open blueman-manager")
     bluetoothSection.append(bluetoothAction)
     root.append(bluetoothSection)
@@ -183,20 +207,64 @@ export function LogoButton() {
         }
     })
 
+    const clearBoxChildren = (box: Gtk.Box) => {
+        let child = box.get_first_child()
+        while (child) {
+            const next = child.get_next_sibling()
+            box.remove(child)
+            child = next
+        }
+    }
+
+    const renderBluetoothDevices = (box: Gtk.Box, devices: BluetoothDevice[], emptyText: string) => {
+        clearBoxChildren(box)
+        if (devices.length === 0) {
+            const empty = Gtk.Label.new(emptyText)
+            empty.set_xalign(0)
+            empty.add_css_class("arch-panel-section-body")
+            box.append(empty)
+            return
+        }
+
+        devices.forEach((device) => {
+            const row = Gtk.Label.new(`${device.name} (${device.address})`)
+            row.set_xalign(0)
+            row.set_wrap(true)
+            row.add_css_class("arch-panel-section-body")
+            box.append(row)
+        })
+    }
+
     const refreshBluetoothSection = () => {
         const managerAvailable = canLaunchBluemanManager()
         const bluetooth = getBluetoothSummaryState()
+        const groups = getBluetoothDeviceGroupsState()
         const operation = getBluetoothOperationState()
 
         if (!managerAvailable) {
             bluetoothBody.set_label("Unavailable (blueman-manager not found in PATH)")
             bluetoothAction.set_sensitive(false)
+            renderBluetoothDevices(connectedGroup, [], "Unavailable")
+            renderBluetoothDevices(pairedGroup, [], "Unavailable")
+            renderBluetoothDevices(discoveredGroup, [], "Unavailable")
             return
         }
 
         if (!bluetooth.available) {
             bluetoothBody.set_label(`Unavailable (${bluetooth.error})`)
             bluetoothAction.set_sensitive(false)
+            renderBluetoothDevices(connectedGroup, [], "Unavailable")
+            renderBluetoothDevices(pairedGroup, [], "Unavailable")
+            renderBluetoothDevices(discoveredGroup, [], "Unavailable")
+            return
+        }
+
+        if (!groups.available) {
+            bluetoothBody.set_label(`Unavailable (${groups.error})`)
+            bluetoothAction.set_sensitive(false)
+            renderBluetoothDevices(connectedGroup, [], "Unavailable")
+            renderBluetoothDevices(pairedGroup, [], "Unavailable")
+            renderBluetoothDevices(discoveredGroup, [], "Unavailable")
             return
         }
 
@@ -204,6 +272,9 @@ export function LogoButton() {
         const errorSuffix = operation.lastError ? ` | Last error: ${operation.lastError}` : ""
         bluetoothBody.set_label(`Status: ${bluetooth.text}${operationSuffix}${errorSuffix}`)
         bluetoothAction.set_sensitive(!operation.busy)
+        renderBluetoothDevices(connectedGroup, groups.connected, "No connected devices")
+        renderBluetoothDevices(pairedGroup, groups.paired, "No paired devices")
+        renderBluetoothDevices(discoveredGroup, groups.discovered, "No discovered devices")
     }
 
     const refreshPanel = () => {
