@@ -45,7 +45,7 @@ function getCpuUsage(): number {
 export function Ram_icon() {
     const button = Gtk.Button.new()
     const box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
-    const image = Gtk.Image.new_from_icon_name("memory-symbolic")
+    const image = Gtk.Image.new_from_icon_name("drive-harddisk-symbolic")
     const label = Gtk.Label.new("0%")
 
     box.append(image)
@@ -67,7 +67,7 @@ export function Ram_icon() {
 export function Cpu_icon() {
     const button = Gtk.Button.new()
     const box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
-    const image = Gtk.Image.new_from_icon_name("cpu-symbolic")
+    const image = Gtk.Image.new_from_icon_name("utilities-system-monitor-symbolic")
     const label = Gtk.Label.new("0%")
 
     box.append(image)
