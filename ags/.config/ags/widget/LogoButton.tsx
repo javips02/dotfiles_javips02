@@ -1,5 +1,6 @@
 import { Gtk } from "astal/gtk4"
 import GLib from "gi://GLib?version=2.0"
+import Gio from "gi://Gio?version=2.0"
 import {
     type PowerProfile,
     getPowerProfileState,
@@ -16,6 +17,35 @@ function findAvatarPath(): string | null {
     const home = GLib.get_home_dir()
     const fallbacks = [`${home}/.face`, `${home}/.face.icon`]
     return fallbacks.find((path) => GLib.file_test(path, GLib.FileTest.EXISTS)) || null
+}
+
+function getBluetoothState(): { available: true; text: string } | { available: false; error: string } {
+    if (!GLib.find_program_in_path("bluetoothctl")) {
+        return { available: false, error: "bluetoothctl not found in PATH" }
+    }
+
+    const command = Gio.Subprocess.new(
+        ["bluetoothctl", "show"],
+        Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE | Gio.SubprocessFlags.SEARCH_PATH,
+    )
+    const [, stdout, stderr] = command.communicate_utf8(null, null)
+    const output = (stdout || stderr || "").trim()
+
+    if (!command.get_successful()) {
+        if (output.includes("No default controller available")) {
+            return { available: true, text: "No Bluetooth adapter detected" }
+        }
+        return { available: false, error: output || "bluetoothctl show failed" }
+    }
+
+    const poweredLine = output
+        .split("\n")
+        .find((line) => line.trim().startsWith("Powered:"))
+        ?.trim()
+    if (!poweredLine) return { available: true, text: "Controller detected" }
+
+    if (poweredLine.endsWith("yes")) return { available: true, text: "Powered on" }
+    return { available: true, text: "Powered off" }
 }
 
 export function LogoButton() {
@@ -108,7 +138,19 @@ export function LogoButton() {
     userSection.append(userRow)
     root.append(userSection)
 
-    const bluetoothBody = makeSection("Bluetooth Settings", "Unavailable - section not wired yet")
+    const bluetoothSection = Gtk.Box.new(Gtk.Orientation.VERTICAL, 4)
+    bluetoothSection.add_css_class("arch-panel-section")
+    const bluetoothTitle = Gtk.Label.new("Bluetooth Settings")
+    bluetoothTitle.set_xalign(0)
+    bluetoothTitle.add_css_class("arch-panel-section-title")
+    bluetoothSection.append(bluetoothTitle)
+    const bluetoothBody = Gtk.Label.new("Current: Loading...")
+    bluetoothBody.set_xalign(0)
+    bluetoothBody.add_css_class("arch-panel-section-body")
+    bluetoothSection.append(bluetoothBody)
+    const bluetoothAction = Gtk.Button.new_with_label("Open blueman-manager")
+    bluetoothSection.append(bluetoothAction)
+    root.append(bluetoothSection)
 
     const setPowerButtonsEnabled = (enabled: boolean) => {
         powerButtons.balanced.set_sensitive(enabled)
@@ -157,8 +199,31 @@ export function LogoButton() {
         userAvatarState.set_label("Avatar unavailable (set AGS_ARCH_AVATAR_PATH or ~/.face)")
     }
 
+    bluetoothAction.connect("clicked", () => {
+        Gio.Subprocess.new(["blueman-manager"], Gio.SubprocessFlags.SEARCH_PATH)
+    })
+
+    const refreshBluetoothSection = () => {
+        const managerAvailable = !!GLib.find_program_in_path("blueman-manager")
+        const bluetooth = getBluetoothState()
+
+        if (!managerAvailable) {
+            bluetoothBody.set_label("Unavailable (blueman-manager not found in PATH)")
+            bluetoothAction.set_sensitive(false)
+            return
+        }
+
+        if (!bluetooth.available) {
+            bluetoothBody.set_label(`Unavailable (${bluetooth.error})`)
+            bluetoothAction.set_sensitive(false)
+            return
+        }
+
+        bluetoothBody.set_label(`Status: ${bluetooth.text}`)
+        bluetoothAction.set_sensitive(true)
+    }
+
     const refreshPanel = () => {
-        const stamp = GLib.DateTime.new_now_local()?.format("%H:%M:%S") || "unknown time"
         refreshPowerProfileSection()
         const nowPlaying = getNowPlayingState()
         if (nowPlaying.available) {
@@ -167,7 +232,7 @@ export function LogoButton() {
             nowPlayingBody.set_label(`Unavailable (${nowPlaying.error})`)
         }
         refreshUserIdentitySection()
-        bluetoothBody.set_label(`Unavailable - section not wired yet (checked ${stamp})`)
+        refreshBluetoothSection()
     }
 
     let refreshTimer: number | null = null
