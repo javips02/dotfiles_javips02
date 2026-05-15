@@ -7,6 +7,7 @@ import {
     setPowerProfile,
     subscribePowerProfileChanged,
 } from "./PowerProfile"
+import { getNowPlayingState } from "./NowPlaying"
 
 export function LogoButton() {
     const button = Gtk.MenuButton.new()
@@ -40,6 +41,7 @@ export function LogoButton() {
 
         const body = Gtk.Label.new(initialText)
         body.set_xalign(0)
+        body.set_wrap(true)
         body.add_css_class("arch-panel-section-body")
         section.append(body)
 
@@ -110,7 +112,12 @@ export function LogoButton() {
     const refreshPanel = () => {
         const stamp = GLib.DateTime.new_now_local()?.format("%H:%M:%S") || "unknown time"
         refreshPowerProfileSection()
-        nowPlayingBody.set_label(`Unavailable - section not wired yet (checked ${stamp})`)
+        const nowPlaying = getNowPlayingState()
+        if (nowPlaying.available) {
+            nowPlayingBody.set_label(nowPlaying.text)
+        } else {
+            nowPlayingBody.set_label(`Unavailable (${nowPlaying.error})`)
+        }
         userIdentityBody.set_label(`Unavailable - section not wired yet (checked ${stamp})`)
         bluetoothBody.set_label(`Unavailable - section not wired yet (checked ${stamp})`)
     }
