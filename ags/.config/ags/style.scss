@@ -135,6 +135,10 @@ window.Bar {
         margin: 0;
     }
 
+    .arch-user-row image {
+        border-radius: 999px;
+    }
+
     popover contents,
     .action-popover contents {
         background: #000000;

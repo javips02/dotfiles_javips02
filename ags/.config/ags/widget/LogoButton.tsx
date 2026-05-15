@@ -9,6 +9,15 @@ import {
 } from "./PowerProfile"
 import { getNowPlayingState } from "./NowPlaying"
 
+function findAvatarPath(): string | null {
+    const configured = GLib.getenv("AGS_ARCH_AVATAR_PATH")
+    if (configured && GLib.file_test(configured, GLib.FileTest.EXISTS)) return configured
+
+    const home = GLib.get_home_dir()
+    const fallbacks = [`${home}/.face`, `${home}/.face.icon`]
+    return fallbacks.find((path) => GLib.file_test(path, GLib.FileTest.EXISTS)) || null
+}
+
 export function LogoButton() {
     const button = Gtk.MenuButton.new()
     button.set_child(Gtk.Label.new("󰣇  Arch"))
@@ -74,7 +83,31 @@ export function LogoButton() {
     root.append(powerProfileSection)
 
     const nowPlayingBody = makeSection("Now Playing", "Unavailable - section not wired yet")
-    const userIdentityBody = makeSection("User Identity", "Unavailable - section not wired yet")
+
+    const userSection = Gtk.Box.new(Gtk.Orientation.VERTICAL, 4)
+    userSection.add_css_class("arch-panel-section")
+    const userTitle = Gtk.Label.new("User Identity")
+    userTitle.set_xalign(0)
+    userTitle.add_css_class("arch-panel-section-title")
+    userSection.append(userTitle)
+    const userRow = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 8)
+    userRow.add_css_class("arch-user-row")
+    const userAvatar = Gtk.Image.new_from_icon_name("avatar-default-symbolic")
+    userAvatar.set_pixel_size(32)
+    userRow.append(userAvatar)
+    const userText = Gtk.Box.new(Gtk.Orientation.VERTICAL, 2)
+    const userName = Gtk.Label.new("Loading user...")
+    userName.set_xalign(0)
+    userName.add_css_class("arch-panel-section-body")
+    const userAvatarState = Gtk.Label.new("Avatar: checking...")
+    userAvatarState.set_xalign(0)
+    userAvatarState.add_css_class("arch-panel-section-body")
+    userText.append(userName)
+    userText.append(userAvatarState)
+    userRow.append(userText)
+    userSection.append(userRow)
+    root.append(userSection)
+
     const bluetoothBody = makeSection("Bluetooth Settings", "Unavailable - section not wired yet")
 
     const setPowerButtonsEnabled = (enabled: boolean) => {
@@ -109,6 +142,21 @@ export function LogoButton() {
     powerButtons.performance.connect("clicked", () => applyProfile("performance"))
     powerButtons["power-saver"].connect("clicked", () => applyProfile("power-saver"))
 
+    const refreshUserIdentitySection = () => {
+        const username = GLib.get_user_name() || "Unknown user"
+        userName.set_label(username)
+
+        const avatarPath = findAvatarPath()
+        if (avatarPath) {
+            userAvatar.set_from_file(avatarPath)
+            userAvatarState.set_label(`Avatar: ${avatarPath}`)
+            return
+        }
+
+        userAvatar.set_from_icon_name("avatar-default-symbolic")
+        userAvatarState.set_label("Avatar unavailable (set AGS_ARCH_AVATAR_PATH or ~/.face)")
+    }
+
     const refreshPanel = () => {
         const stamp = GLib.DateTime.new_now_local()?.format("%H:%M:%S") || "unknown time"
         refreshPowerProfileSection()
@@ -118,7 +166,7 @@ export function LogoButton() {
         } else {
             nowPlayingBody.set_label(`Unavailable (${nowPlaying.error})`)
         }
-        userIdentityBody.set_label(`Unavailable - section not wired yet (checked ${stamp})`)
+        refreshUserIdentitySection()
         bluetoothBody.set_label(`Unavailable - section not wired yet (checked ${stamp})`)
     }
 
