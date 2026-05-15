@@ -154,6 +154,7 @@ export function LogoButton() {
     const connectedGroup = makeBluetoothGroup("Connected")
     const pairedGroup = makeBluetoothGroup("Paired")
     const discoveredGroup = makeBluetoothGroup("Discovered")
+    const bluetoothInlineErrors = new Map<string, { action: "connect" | "disconnect" | "pair"; message: string }>()
 
     const scanButton = Gtk.Button.new_with_label("Scan (15s)")
     bluetoothSection.append(scanButton)
@@ -264,14 +265,36 @@ export function LogoButton() {
 
             const actionLabel = action === "connect" ? "Connect" : action === "disconnect" ? "Disconnect" : "Pair"
             const actionButton = Gtk.Button.new_with_label(actionLabel)
-            actionButton.connect("clicked", () => {
+            const runAction = () => {
                 const result = runDeviceAction(device)
-                if (!result.ok) bluetoothBody.set_label(`Unavailable (${result.error})`)
-                else if (result.escalated) bluetoothBody.set_label("Status: Pairing confirmation opened in blueman-manager")
+                if (!result.ok) {
+                    bluetoothInlineErrors.set(device.address, { action, message: result.error })
+                    bluetoothBody.set_label(`Status: Action failed for ${device.name}`)
+                } else {
+                    bluetoothInlineErrors.delete(device.address)
+                    if (result.escalated) bluetoothBody.set_label("Status: Pairing confirmation opened in blueman-manager")
+                }
                 refreshBluetoothSection()
-            })
+            }
+            actionButton.connect("clicked", runAction)
             row.append(actionButton)
             box.append(row)
+
+            const inlineError = bluetoothInlineErrors.get(device.address)
+            if (inlineError && inlineError.action === action) {
+                const errorBox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
+                const errorLabel = Gtk.Label.new(`Error: ${inlineError.message}`)
+                errorLabel.set_xalign(0)
+                errorLabel.set_wrap(true)
+                errorLabel.set_hexpand(true)
+                errorLabel.add_css_class("arch-panel-section-body")
+                errorBox.append(errorLabel)
+
+                const retry = Gtk.Button.new_with_label("Retry")
+                retry.connect("clicked", runAction)
+                errorBox.append(retry)
+                box.append(errorBox)
+            }
         })
     }
 
@@ -322,6 +345,12 @@ export function LogoButton() {
         bluetoothAction.set_sensitive(!operation.busy)
         scanButton.set_sensitive(!operation.busy)
         scanButton.set_label(scanSession.active ? "Stop Scan" : "Scan (15s)")
+        const activeAddresses = new Set(
+            [...groups.connected, ...groups.paired, ...groups.discovered].map((device) => device.address),
+        )
+        Array.from(bluetoothInlineErrors.keys()).forEach((address) => {
+            if (!activeAddresses.has(address)) bluetoothInlineErrors.delete(address)
+        })
         renderBluetoothDevices(connectedGroup, groups.connected, "No connected devices", "disconnect")
         renderBluetoothDevices(pairedGroup, groups.paired, "No paired devices", "connect")
         renderBluetoothDevices(discoveredGroup, groups.discovered, "No discovered devices", "pair")
