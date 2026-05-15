@@ -89,6 +89,16 @@ window.Bar {
         color: white;
     }
 
+    .battery-module.profile-performance label,
+    .battery-module.profile-performance image {
+        border-bottom: 2px solid #ff4d4d;
+    }
+
+    .battery-module.profile-power-saver label,
+    .battery-module.profile-power-saver image {
+        border-bottom: 2px solid #52c96b;
+    }
+
     popover contents,
     .action-popover contents {
         background: #000000;
