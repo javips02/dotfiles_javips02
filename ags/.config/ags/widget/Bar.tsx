@@ -28,21 +28,43 @@ export default function Bar(gdkmonitor: Gdk.Monitor, application: Gtk.Applicatio
         >
             <box cssName="centerbox" hexpand>
                 <box halign={START} hexpand>
-                    <Workspaces />
+                    <box cssClasses={["island"]}>
+                        <Workspaces />
+                    </box>
                 </box>
                 <box halign={CENTER} hexpand>
-                    <TimeMenuButton />
+                    <box cssClasses={["island"]}>
+                        <TimeMenuButton />
+                    </box>
                 </box>
                 <box halign={END} hexpand>
-                    <Tray_icon />
-                    <Cpu_icon />
-                    <Ram_icon />
-                    <Network_icon />
-                    <Mic />
-                    <Volume_icon />
-                    <Battery_icon />
-                    <PowerMenu />
-                    <LogoButton />
+                    <box cssClasses={["island"]}>
+                        <Tray_icon />
+                    </box>
+                    <box cssClasses={["island"]}>
+                        <Cpu_icon />
+                    </box>
+                    <box cssClasses={["island"]}>
+                        <Ram_icon />
+                    </box>
+                    <box cssClasses={["island"]}>
+                        <Network_icon />
+                    </box>
+                    <box cssClasses={["island"]}>
+                        <Mic />
+                    </box>
+                    <box cssClasses={["island"]}>
+                        <Volume_icon />
+                    </box>
+                    <box cssClasses={["island"]}>
+                        <Battery_icon />
+                    </box>
+                    <box cssClasses={["island"]}>
+                        <PowerMenu />
+                    </box>
+                    <box cssClasses={["island"]}>
+                        <LogoButton />
+                    </box>
                 </box>
             </box>
         </window>
