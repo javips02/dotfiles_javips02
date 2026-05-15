@@ -1,6 +1,5 @@
 import { Gtk } from "astal/gtk4"
 import GLib from "gi://GLib?version=2.0"
-import Gio from "gi://Gio?version=2.0"
 import {
     type PowerProfile,
     getPowerProfileState,
@@ -9,6 +8,13 @@ import {
     subscribePowerProfileChanged,
 } from "./PowerProfile"
 import { getNowPlayingState } from "./NowPlaying"
+import {
+    canLaunchBluemanManager,
+    getBluetoothOperationState,
+    getBluetoothSummaryState,
+    launchBluemanManager,
+    subscribeBluetoothOperationChanged,
+} from "./BluetoothService"
 
 function findAvatarPath(): string | null {
     const configured = GLib.getenv("AGS_ARCH_AVATAR_PATH")
@@ -17,35 +23,6 @@ function findAvatarPath(): string | null {
     const home = GLib.get_home_dir()
     const fallbacks = [`${home}/.face`, `${home}/.face.icon`]
     return fallbacks.find((path) => GLib.file_test(path, GLib.FileTest.EXISTS)) || null
-}
-
-function getBluetoothState(): { available: true; text: string } | { available: false; error: string } {
-    if (!GLib.find_program_in_path("bluetoothctl")) {
-        return { available: false, error: "bluetoothctl not found in PATH" }
-    }
-
-    const command = Gio.Subprocess.new(
-        ["bluetoothctl", "show"],
-        Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE | Gio.SubprocessFlags.SEARCH_PATH,
-    )
-    const [, stdout, stderr] = command.communicate_utf8(null, null)
-    const output = (stdout || stderr || "").trim()
-
-    if (!command.get_successful()) {
-        if (output.includes("No default controller available")) {
-            return { available: true, text: "No Bluetooth adapter detected" }
-        }
-        return { available: false, error: output || "bluetoothctl show failed" }
-    }
-
-    const poweredLine = output
-        .split("\n")
-        .find((line) => line.trim().startsWith("Powered:"))
-        ?.trim()
-    if (!poweredLine) return { available: true, text: "Controller detected" }
-
-    if (poweredLine.endsWith("yes")) return { available: true, text: "Powered on" }
-    return { available: true, text: "Powered off" }
 }
 
 export function LogoButton() {
@@ -200,12 +177,16 @@ export function LogoButton() {
     }
 
     bluetoothAction.connect("clicked", () => {
-        Gio.Subprocess.new(["blueman-manager"], Gio.SubprocessFlags.SEARCH_PATH)
+        const launchResult = launchBluemanManager()
+        if (!launchResult.ok) {
+            bluetoothBody.set_label(`Unavailable (${launchResult.error})`)
+        }
     })
 
     const refreshBluetoothSection = () => {
-        const managerAvailable = !!GLib.find_program_in_path("blueman-manager")
-        const bluetooth = getBluetoothState()
+        const managerAvailable = canLaunchBluemanManager()
+        const bluetooth = getBluetoothSummaryState()
+        const operation = getBluetoothOperationState()
 
         if (!managerAvailable) {
             bluetoothBody.set_label("Unavailable (blueman-manager not found in PATH)")
@@ -219,8 +200,10 @@ export function LogoButton() {
             return
         }
 
-        bluetoothBody.set_label(`Status: ${bluetooth.text}`)
-        bluetoothAction.set_sensitive(true)
+        const operationSuffix = operation.busy ? ` | Busy: ${operation.currentAction || "action"}` : ""
+        const errorSuffix = operation.lastError ? ` | Last error: ${operation.lastError}` : ""
+        bluetoothBody.set_label(`Status: ${bluetooth.text}${operationSuffix}${errorSuffix}`)
+        bluetoothAction.set_sensitive(!operation.busy)
     }
 
     const refreshPanel = () => {
@@ -251,10 +234,12 @@ export function LogoButton() {
         refreshTimer = null
     })
     const unsubscribe = subscribePowerProfileChanged(refreshPowerProfileSection)
+    const unsubscribeBluetooth = subscribeBluetoothOperationChanged(refreshBluetoothSection)
 
     button.connect("destroy", () => {
         if (refreshTimer !== null) GLib.Source.remove(refreshTimer)
         unsubscribe()
+        unsubscribeBluetooth()
     })
 
     button.set_popover(popover)
