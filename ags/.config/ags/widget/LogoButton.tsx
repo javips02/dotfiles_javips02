@@ -7,7 +7,12 @@ import {
     setPowerProfile,
     subscribePowerProfileChanged,
 } from "./PowerProfile"
-import { getNowPlayingState } from "./NowPlaying"
+import {
+    getNowPlayingSectionState,
+    runNowPlayingTransport,
+    selectNextPlayer,
+    selectPreviousPlayer,
+} from "./NowPlaying"
 import {
     type BluetoothDevice,
     canLaunchBluemanManager,
@@ -97,7 +102,48 @@ export function LogoButton() {
     powerProfileSection.append(powerButtonRow)
     root.append(powerProfileSection)
 
-    const nowPlayingBody = makeSection("Now Playing", "Unavailable - section not wired yet")
+    const nowPlayingSection = Gtk.Box.new(Gtk.Orientation.VERTICAL, 4)
+    nowPlayingSection.add_css_class("arch-panel-section")
+    const nowPlayingTitle = Gtk.Label.new("Now Playing")
+    nowPlayingTitle.set_xalign(0)
+    nowPlayingTitle.add_css_class("arch-panel-section-title")
+    nowPlayingSection.append(nowPlayingTitle)
+
+    const nowPlayingPlayerRow = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 4)
+    nowPlayingPlayerRow.add_css_class("arch-nowplaying-selector")
+    const previousPlayerButton = Gtk.Button.new_with_label("◀")
+    const nextPlayerButton = Gtk.Button.new_with_label("▶")
+    const nowPlayingPlayerLabel = Gtk.Label.new("Player: None")
+    nowPlayingPlayerLabel.set_xalign(0)
+    nowPlayingPlayerLabel.set_hexpand(true)
+    nowPlayingPlayerLabel.add_css_class("arch-panel-section-body")
+    nowPlayingPlayerRow.append(previousPlayerButton)
+    nowPlayingPlayerRow.append(nowPlayingPlayerLabel)
+    nowPlayingPlayerRow.append(nextPlayerButton)
+    nowPlayingSection.append(nowPlayingPlayerRow)
+
+    const nowPlayingTrackLabel = Gtk.Label.new("Nothing playing")
+    nowPlayingTrackLabel.set_xalign(0)
+    nowPlayingTrackLabel.set_wrap(true)
+    nowPlayingTrackLabel.add_css_class("arch-panel-section-body")
+    nowPlayingSection.append(nowPlayingTrackLabel)
+
+    const nowPlayingControlsRow = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 4)
+    nowPlayingControlsRow.add_css_class("arch-nowplaying-controls")
+    const previousTrackButton = Gtk.Button.new_with_label("⏮")
+    const playPauseButton = Gtk.Button.new_with_label("⏯")
+    const nextTrackButton = Gtk.Button.new_with_label("⏭")
+    nowPlayingControlsRow.append(previousTrackButton)
+    nowPlayingControlsRow.append(playPauseButton)
+    nowPlayingControlsRow.append(nextTrackButton)
+    nowPlayingSection.append(nowPlayingControlsRow)
+
+    const nowPlayingDisabledReason = Gtk.Label.new("")
+    nowPlayingDisabledReason.set_xalign(0)
+    nowPlayingDisabledReason.set_wrap(true)
+    nowPlayingDisabledReason.add_css_class("arch-panel-section-body")
+    nowPlayingSection.append(nowPlayingDisabledReason)
+    root.append(nowPlayingSection)
 
     const userSection = Gtk.Box.new(Gtk.Orientation.VERTICAL, 4)
     userSection.add_css_class("arch-panel-section")
@@ -155,6 +201,7 @@ export function LogoButton() {
     const pairedGroup = makeBluetoothGroup("Paired")
     const discoveredGroup = makeBluetoothGroup("Discovered")
     const bluetoothInlineErrors = new Map<string, { action: "connect" | "disconnect" | "pair"; message: string }>()
+    let nowPlayingTransportError: string | null = null
 
     const scanButton = Gtk.Button.new_with_label("Scan (15s)")
     bluetoothSection.append(scanButton)
@@ -194,6 +241,28 @@ export function LogoButton() {
     powerButtons.balanced.connect("clicked", () => applyProfile("balanced"))
     powerButtons.performance.connect("clicked", () => applyProfile("performance"))
     powerButtons["power-saver"].connect("clicked", () => applyProfile("power-saver"))
+
+    const runTransportAction = (action: "play-pause" | "next" | "previous") => {
+        const result = runNowPlayingTransport(action)
+        if (!result.ok) {
+            nowPlayingTransportError = result.error || "Transport action failed"
+        } else {
+            nowPlayingTransportError = null
+        }
+        refreshPanel()
+    }
+
+    previousPlayerButton.connect("clicked", () => {
+        selectPreviousPlayer()
+        refreshPanel()
+    })
+    nextPlayerButton.connect("clicked", () => {
+        selectNextPlayer()
+        refreshPanel()
+    })
+    previousTrackButton.connect("clicked", () => runTransportAction("previous"))
+    playPauseButton.connect("clicked", () => runTransportAction("play-pause"))
+    nextTrackButton.connect("clicked", () => runTransportAction("next"))
 
     const refreshUserIdentitySection = () => {
         const username = GLib.get_user_name() || "Unknown user"
@@ -358,11 +427,26 @@ export function LogoButton() {
 
     const refreshPanel = () => {
         refreshPowerProfileSection()
-        const nowPlaying = getNowPlayingState()
-        if (nowPlaying.available) {
-            nowPlayingBody.set_label(nowPlaying.text)
+        const nowPlaying = getNowPlayingSectionState()
+        if (!nowPlaying.available) {
+            nowPlayingPlayerLabel.set_label("Player: Unavailable")
+            nowPlayingTrackLabel.set_label(`Unavailable (${nowPlaying.error})`)
+            nowPlayingDisabledReason.set_label("No players available")
+            previousPlayerButton.set_sensitive(false)
+            nextPlayerButton.set_sensitive(false)
+            previousTrackButton.set_sensitive(false)
+            playPauseButton.set_sensitive(false)
+            nextTrackButton.set_sensitive(false)
         } else {
-            nowPlayingBody.set_label(`Unavailable (${nowPlaying.error})`)
+            nowPlayingPlayerLabel.set_label(`Player: ${nowPlaying.selectedPlayerLabel}`)
+            nowPlayingTrackLabel.set_label(nowPlaying.trackText)
+            nowPlayingDisabledReason.set_label(nowPlaying.disabledReason || nowPlayingTransportError || "")
+            const hasMultiplePlayers = nowPlaying.players.length > 1
+            previousPlayerButton.set_sensitive(hasMultiplePlayers)
+            nextPlayerButton.set_sensitive(hasMultiplePlayers)
+            previousTrackButton.set_sensitive(nowPlaying.controlsEnabled)
+            playPauseButton.set_sensitive(nowPlaying.controlsEnabled)
+            nextTrackButton.set_sensitive(nowPlaying.controlsEnabled)
         }
         refreshUserIdentitySection()
         refreshBluetoothSection()

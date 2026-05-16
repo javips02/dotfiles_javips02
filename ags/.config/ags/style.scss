@@ -135,6 +135,12 @@ window.Bar {
         margin: 0;
     }
 
+    .arch-nowplaying-selector button,
+    .arch-nowplaying-controls button {
+        padding: 2px 8px;
+        margin: 0;
+    }
+
     .arch-user-row image {
         border-radius: 999px;
     }
