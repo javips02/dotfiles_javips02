@@ -136,7 +136,7 @@ usage() {
             echo "Homebrew not found. Please install tldr manually."
           fi
         fi
-        pkgs=(nvim shell wmmacos tmux)
+        pkgs=(nvim shell wmmacos tmux terminal)
         ;;
       linux)
         pkgs=(ags asound bar dwmconfig hyprsuite menus notifications nvim qtile shell sway terminal tmux)
