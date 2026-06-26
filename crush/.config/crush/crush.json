@@ -1,0 +1,50 @@
+{
+  "$schema": "https://charm.land/crush.json",
+  "providers": {
+    "ollama": {
+      "name": "Ollama",
+      "base_url": "http://localhost:11434/v1/",
+      "type": "ollama"
+    }
+  },
+  "lsp": {
+    "python": {
+      "command": "pyright-langserver",
+      "args": ["--stdio"],
+      "filetypes": ["py"],
+      "root_markers": ["pyproject.toml", "setup.py", "requirements.txt", ".git"]
+    },
+    "typescript": {
+      "command": "typescript-language-server",
+      "args": ["--stdio"],
+      "filetypes": ["js", "jsx", "ts", "tsx", "json"],
+      "root_markers": ["package.json", "tsconfig.json", ".git"]
+    }
+  },
+  "mcp": {
+    "atlassian": {
+      "type": "stdio",
+      "command": "${HOME}/.config/crush/run-atlassian-mcp.sh",
+      "timeout": 60,
+      "env": {
+        "JIRA_PERSONAL_TOKEN": "${JIRA_PERSONAL_TOKEN}",
+        "CONFLUENCE_PERSONAL_TOKEN": "${CONFLUENCE_PERSONAL_TOKEN}"
+      }
+    },
+    "github-mcp-server": {
+      "type": "stdio",
+      "command": "${HOME}/.config/crush/run-github-mcp.sh",
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "${HOME}/.config/crush/mcp-wrapper.sh",
+      "args": [
+        "run", "--rm", "-i", "--platform", "linux/amd64",
+        "registry.tools.3stripes.net/pe-mcp-servers/mcp-context7:2026-05-14-d11304f"
+      ]
+    }
+  }
+}
