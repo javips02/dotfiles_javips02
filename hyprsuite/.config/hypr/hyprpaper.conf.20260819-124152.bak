@@ -1,0 +1,8 @@
+splash = false
+ipc = true
+
+wallpaper {
+    monitor = 
+    path = /home/javi/Pictures/wallpapers/catfishers.png
+    fit_mode = cover
+}

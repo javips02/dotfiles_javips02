@@ -1,15 +1,29 @@
 #!/bin/bash
 
-# Verifica si hay un monitor HDMI conectado
-if [[ "$(hyprctl monitors)" == *"HDMI"* ]]; then
-  if [[ $1 == "open" ]]; then
-    # Al abrir la tapa, configura el monitor externo HDMI (1920x1080) arriba del interno eDP-1 (1920x1200)
-	#hyprctl keyword monitor "HDMI-A-1,1920x1080@60,0,0,1,bitdepth,10"
-    #hyprctl keyword monitor "eDP-1,1920x1200@60,0,1080,1,bitdepth,10"
-	#Simplemente cargamos config de nuevo, sino error de sintaxis.
-	hyprctl reload
+if [[ $1 == "open" ]]; then
+  # Restore the internal panel and wake displays when the lid opens.
+  hyprctl keyword monitor "eDP-1, 1920x1200@60, 0x0, 1, bitdepth, 10"
+  hyprctl dispatch dpms on
+elif [[ $1 == "close" ]]; then
+  # Ensure the quickshell/noctalia lockscreen is running, otherwise start it.
+  if command -v qs >/dev/null 2>&1; then
+    if ! pgrep -f "qs -c noctalia-shell" >/dev/null 2>&1; then
+      uwsm app -- qs -c noctalia-shell &
+      sleep 0.2
+    fi
+    qs -c noctalia-shell ipc call lockScreen lock || true
   else
-    # Al cerrar la tapa, desactivar el monitor interno eDP-1
-    hyprctl keyword monitor "eDP-1,disable"
+    # Fallback to hyprlock if qs isn't available.
+    if command -v hyprlock >/dev/null 2>&1; then
+      if ! pgrep -x hyprlock >/dev/null 2>&1; then
+        hyprlock &
+      fi
+    fi
   fi
+
+  # Do not disable eDP here: lid-open events can be missed across suspend.
+  hyprctl dispatch dpms off
+
+  # If logind is set to ignore lid events, this still suspends the machine.
+  systemctl suspend
 fi
