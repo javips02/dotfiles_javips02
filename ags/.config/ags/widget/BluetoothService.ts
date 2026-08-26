@@ -72,24 +72,29 @@ function setLastError(error: string | null) {
     notifyChanged()
 }
 
-function withActionLock(action: string, run: () => BluetoothActionResult): BluetoothActionResult {
+function withActionLock(
+    action: string,
+    run: () => BluetoothActionResult,
+    options?: { notifyChanged?: boolean },
+): BluetoothActionResult {
+    const notify = options?.notifyChanged ?? true
     if (operationState.busy) {
         return { ok: false, error: `Bluetooth action already running: ${operationState.currentAction || "unknown"}`, busy: true }
     }
 
     operationState.busy = true
     operationState.currentAction = action
-    notifyChanged()
+    if (notify) notifyChanged()
 
     try {
         const result = run()
-        if (!result.ok) setLastError(result.error)
-        else setLastError(null)
+        operationState.lastError = result.ok ? null : result.error
+        if (notify) notifyChanged()
         return result
     } finally {
         operationState.busy = false
         operationState.currentAction = null
-        notifyChanged()
+        if (notify) notifyChanged()
     }
 }
 
@@ -132,6 +137,12 @@ export function runBluetoothAction(action: BluetoothAllowedAction, device?: stri
     return withActionLock(action, () => runBluetoothctl(args))
 }
 
+function runBluetoothReadAction(action: "show" | "devices" | "info", device?: string): BluetoothActionResult {
+    const args = actionToArgs(action, device)
+    if (!args) return { ok: false, error: `Action ${action} requires a valid device address` }
+    return withActionLock(action, () => runBluetoothctl(args), { notifyChanged: false })
+}
+
 function parseDeviceList(output: string): BluetoothDevice[] {
     return output
         .split("\n")
@@ -146,7 +157,7 @@ function parseDeviceList(output: string): BluetoothDevice[] {
 
 function listBluetoothDevices(filter?: "Paired" | "Connected" | "Trusted" | "Bonded"): BluetoothActionResult {
     const args = filter ? ["devices", filter] : ["devices"]
-    return withActionLock(`devices${filter ? `-${filter}` : ""}`, () => runBluetoothctl(args))
+    return withActionLock(`devices${filter ? `-${filter}` : ""}`, () => runBluetoothctl(args), { notifyChanged: false })
 }
 
 export function getBluetoothDeviceGroupsState(): BluetoothDeviceGroupsState {
@@ -255,7 +266,7 @@ export function pairBluetoothDevice(address: string): BluetoothDeviceActionResul
 }
 
 export function getBluetoothSummaryState(): BluetoothSummaryState {
-    const showResult = runBluetoothAction("show")
+    const showResult = runBluetoothReadAction("show")
     if (!showResult.ok) {
         if (showResult.error.includes("No default controller available")) {
             return { available: true, text: "No Bluetooth adapter detected" }

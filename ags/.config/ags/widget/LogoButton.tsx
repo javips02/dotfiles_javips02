@@ -1,5 +1,8 @@
 import { Gtk } from "astal/gtk4"
 import GLib from "gi://GLib?version=2.0"
+import Gio from "gi://Gio?version=2.0"
+import Network from "gi://AstalNetwork"
+import Wp from "gi://AstalWp"
 import {
     type PowerProfile,
     getPowerProfileState,
@@ -36,6 +39,10 @@ function findAvatarPath(): string | null {
     const home = GLib.get_home_dir()
     const fallbacks = [`${home}/.face`, `${home}/.face.icon`]
     return fallbacks.find((path) => GLib.file_test(path, GLib.FileTest.EXISTS)) || null
+}
+
+function runCommand(argv: string[]) {
+    Gio.Subprocess.new(argv, Gio.SubprocessFlags.NONE)
 }
 
 export function LogoButton() {
@@ -101,6 +108,67 @@ export function LogoButton() {
     powerButtonRow.append(powerButtons["power-saver"])
     powerProfileSection.append(powerButtonRow)
     root.append(powerProfileSection)
+
+    const audioSection = Gtk.Box.new(Gtk.Orientation.VERTICAL, 4)
+    audioSection.add_css_class("arch-panel-section")
+    const audioTitle = Gtk.Label.new("Audio Settings")
+    audioTitle.set_xalign(0)
+    audioTitle.add_css_class("arch-panel-section-title")
+    audioSection.append(audioTitle)
+    const speakerStatus = Gtk.Label.new("Speaker: Loading...")
+    speakerStatus.set_xalign(0)
+    speakerStatus.add_css_class("arch-panel-section-body")
+    audioSection.append(speakerStatus)
+    const speakerControls = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 4)
+    speakerControls.add_css_class("arch-panel-option-row")
+    const speakerDown = Gtk.Button.new_with_label("Vol -")
+    const speakerToggleMute = Gtk.Button.new_with_label("Toggle Mute")
+    const speakerUp = Gtk.Button.new_with_label("Vol +")
+    speakerControls.append(speakerDown)
+    speakerControls.append(speakerToggleMute)
+    speakerControls.append(speakerUp)
+    audioSection.append(speakerControls)
+    const micStatus = Gtk.Label.new("Mic: Loading...")
+    micStatus.set_xalign(0)
+    micStatus.add_css_class("arch-panel-section-body")
+    audioSection.append(micStatus)
+    const micToggleMute = Gtk.Button.new_with_label("Toggle Mic Mute")
+    audioSection.append(micToggleMute)
+    root.append(audioSection)
+
+    const networkSection = Gtk.Box.new(Gtk.Orientation.VERTICAL, 4)
+    networkSection.add_css_class("arch-panel-section")
+    const networkTitle = Gtk.Label.new("Network Settings")
+    networkTitle.set_xalign(0)
+    networkTitle.add_css_class("arch-panel-section-title")
+    networkSection.append(networkTitle)
+    const networkBody = Gtk.Label.new("Status: Loading...")
+    networkBody.set_xalign(0)
+    networkBody.set_wrap(true)
+    networkBody.add_css_class("arch-panel-section-body")
+    networkSection.append(networkBody)
+    const networkAction = Gtk.Button.new_with_label("Open Network Manager")
+    networkSection.append(networkAction)
+    root.append(networkSection)
+
+    const powerActionsSection = Gtk.Box.new(Gtk.Orientation.VERTICAL, 4)
+    powerActionsSection.add_css_class("arch-panel-section")
+    const powerActionsTitle = Gtk.Label.new("Power Actions")
+    powerActionsTitle.set_xalign(0)
+    powerActionsTitle.add_css_class("arch-panel-section-title")
+    powerActionsSection.append(powerActionsTitle)
+    const powerActionsRow = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 4)
+    powerActionsRow.add_css_class("arch-panel-option-row")
+    const lockButton = Gtk.Button.new_with_label("󰌾 Lock")
+    const shutdownButton = Gtk.Button.new_with_label(" Shutdown")
+    const rebootButton = Gtk.Button.new_with_label(" Reboot")
+    const reloadWallpaperButton = Gtk.Button.new_with_label(" Reload Wallpaper")
+    powerActionsRow.append(lockButton)
+    powerActionsRow.append(shutdownButton)
+    powerActionsRow.append(rebootButton)
+    powerActionsSection.append(powerActionsRow)
+    powerActionsSection.append(reloadWallpaperButton)
+    root.append(powerActionsSection)
 
     const nowPlayingSection = Gtk.Box.new(Gtk.Orientation.VERTICAL, 4)
     nowPlayingSection.add_css_class("arch-panel-section")
@@ -202,6 +270,7 @@ export function LogoButton() {
     const discoveredGroup = makeBluetoothGroup("Discovered")
     const bluetoothInlineErrors = new Map<string, { action: "connect" | "disconnect" | "pair"; message: string }>()
     let nowPlayingTransportError: string | null = null
+    let networkInlineError: string | null = null
 
     const scanButton = Gtk.Button.new_with_label("Scan (15s)")
     bluetoothSection.append(scanButton)
@@ -242,6 +311,47 @@ export function LogoButton() {
     powerButtons.performance.connect("clicked", () => applyProfile("performance"))
     powerButtons["power-saver"].connect("clicked", () => applyProfile("power-saver"))
 
+    const setSpeakerVolumeDelta = (delta: number) => {
+        const speaker = Wp.get_default()?.audio.defaultSpeaker
+        if (!speaker) return
+        const next = Math.max(0, Math.min(1, speaker.volume + delta))
+        speaker.volume = next
+        refreshPanel()
+    }
+    speakerDown.connect("clicked", () => setSpeakerVolumeDelta(-0.05))
+    speakerUp.connect("clicked", () => setSpeakerVolumeDelta(0.05))
+    speakerToggleMute.connect("clicked", () => {
+        const speaker = Wp.get_default()?.audio.defaultSpeaker
+        if (!speaker) return
+        speaker.set_mute(!speaker.get_mute())
+        refreshPanel()
+    })
+    micToggleMute.connect("clicked", () => {
+        const microphone = Wp.get_default()?.audio.defaultMicrophone
+        if (!microphone) return
+        microphone.set_mute(!microphone.get_mute())
+        refreshPanel()
+    })
+    networkAction.connect("clicked", () => {
+        if (!GLib.find_program_in_path("ghostty")) {
+            networkInlineError = "ghostty not found in PATH"
+        } else {
+            Gio.Subprocess.new(["ghostty", "-e", "nmtui"], Gio.SubprocessFlags.NONE)
+            networkInlineError = null
+        }
+        refreshPanel()
+    })
+    lockButton.connect("clicked", () => runCommand(["hyprlock"]))
+    shutdownButton.connect("clicked", () => runCommand(["/usr/bin/systemctl", "poweroff"]))
+    rebootButton.connect("clicked", () => runCommand(["/usr/bin/systemctl", "reboot"]))
+    reloadWallpaperButton.connect("clicked", () =>
+        runCommand([
+            "sh",
+            "-c",
+            "if pgrep -x hyprpaper > /dev/null; then killall hyprpaper && hyprpaper & disown; else hyprpaper & disown; fi",
+        ]),
+    )
+
     const runTransportAction = (action: "play-pause" | "next" | "previous") => {
         const result = runNowPlayingTransport(action)
         if (!result.ok) {
@@ -277,6 +387,46 @@ export function LogoButton() {
 
         userAvatar.set_from_icon_name("avatar-default-symbolic")
         userAvatarState.set_label("Avatar unavailable (set AGS_ARCH_AVATAR_PATH or ~/.face)")
+    }
+
+    const refreshAudioSection = () => {
+        const speaker = Wp.get_default()?.audio.defaultSpeaker
+        const microphone = Wp.get_default()?.audio.defaultMicrophone
+        const controlsEnabled = !!speaker
+        speakerDown.set_sensitive(controlsEnabled)
+        speakerUp.set_sensitive(controlsEnabled)
+        speakerToggleMute.set_sensitive(controlsEnabled)
+
+        if (!speaker) {
+            speakerStatus.set_label("Speaker: Unavailable")
+        } else {
+            const pct = Math.round(speaker.volume * 100)
+            const muteState = speaker.get_mute() ? "muted" : "active"
+            speakerStatus.set_label(`Speaker: ${pct}% (${muteState})`)
+        }
+
+        if (!microphone) {
+            micStatus.set_label("Mic: Unavailable")
+            micToggleMute.set_sensitive(false)
+        } else {
+            micStatus.set_label(`Mic: ${microphone.get_mute() ? "muted" : "active"}`)
+            micToggleMute.set_sensitive(true)
+        }
+    }
+
+    const refreshNetworkSection = () => {
+        const network = Network.get_default()
+        if (network.wired && network.wired.speed > 0) {
+            networkBody.set_label(`Status: Wired (${network.wired.speed} Mbps)`)
+        } else if (network.wifi && network.wifi.ssid) {
+            networkBody.set_label(`Status: Wi-Fi (${network.wifi.ssid})`)
+        } else {
+            networkBody.set_label("Status: No network")
+        }
+
+        if (networkInlineError) {
+            networkBody.set_label(`${networkBody.get_label()} | Last action error: ${networkInlineError}`)
+        }
     }
 
     bluetoothAction.connect("clicked", () => {
@@ -427,6 +577,8 @@ export function LogoButton() {
 
     const refreshPanel = () => {
         refreshPowerProfileSection()
+        refreshAudioSection()
+        refreshNetworkSection()
         const nowPlaying = getNowPlayingSectionState()
         if (!nowPlaying.available) {
             nowPlayingPlayerLabel.set_label("Player: Unavailable")
