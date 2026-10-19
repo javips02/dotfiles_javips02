@@ -139,7 +139,7 @@ usage() {
         pkgs=(nvim shell wmmacos tmux terminal crush)
         ;;
       linux)
-        pkgs=(ags asound bar dwmconfig hyprsuite menus notifications nvim qtile shell sway terminal tmux crush)
+        pkgs=(ags asound bar dwmconfig hyprsuite menus noctalia notifications nvim qtile shell sway terminal tmux crush)
         ;;
       windows)
         pkgs=(nvim shell crush)
