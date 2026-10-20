@@ -12,7 +12,8 @@ This package contains my tmux configuration.
 
 - Symlinks tmux config to $HOME/.tmux.conf.
 - `./stow-apply.sh macos` also installs tmux with Homebrew when needed, clones
-  TPM, and installs the plugins declared in the configuration.
+  TPM, installs the plugins declared in the configuration, and reloads tmux so
+  themes and plugin bindings take effect immediately.
 - For Linux, macOS, or any system using tmux
 
 ## Notes
@@ -56,4 +57,3 @@ Ctrl-a + n / p,Move to Next or Previous window.
 Ctrl-a + + / -,Split panes (based on your custom config).
 Ctrl-a + Ctrl-s,Save your session layout (via tmux-resurrect).
 Ctrl-a + Ctrl-r,Restore your sessions after a computer reboot.
-

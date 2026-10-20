@@ -319,6 +319,10 @@ if [ "$1" = "macos" ]; then
 
   echo "Installing tmux plugins..."
   "$tpm_dir/bin/install_plugins"
+
+  echo "Reloading tmux configuration..."
+  tmux start-server
+  tmux source-file "$HOME/.tmux.conf"
 fi
 
 echo "Done."
