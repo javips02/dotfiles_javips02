@@ -12,8 +12,8 @@ This package contains my tmux configuration.
 
 - Symlinks tmux config to $HOME/.tmux.conf.
 - `./stow-apply.sh macos` also installs tmux with Homebrew when needed, clones
-  TPM, installs the plugins declared in the configuration, and reloads tmux so
-  themes and plugin bindings take effect immediately.
+  TPM, starts a temporary tmux session to load the configuration, installs the
+  declared plugins, reloads tmux, and removes the temporary session.
 - For Linux, macOS, or any system using tmux
 
 ## Notes

@@ -317,12 +317,24 @@ if [ "$1" = "macos" ]; then
     git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
   fi
 
+  tmux_bootstrap_session="dotfiles-bootstrap-$$"
+  cleanup_tmux_bootstrap() {
+    tmux kill-session -t "$tmux_bootstrap_session" >/dev/null 2>&1 || true
+  }
+  trap cleanup_tmux_bootstrap EXIT
+
+  tmux new-session -d -s "$tmux_bootstrap_session"
+
+  echo "Loading tmux configuration..."
+  tmux source-file "$HOME/.tmux.conf"
+
   echo "Installing tmux plugins..."
   "$tpm_dir/bin/install_plugins"
 
   echo "Reloading tmux configuration..."
-  tmux start-server
   tmux source-file "$HOME/.tmux.conf"
+  cleanup_tmux_bootstrap
+  trap - EXIT
 fi
 
 echo "Done."
