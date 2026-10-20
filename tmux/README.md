@@ -10,7 +10,9 @@ This package contains my tmux configuration.
 
     stow -t "$HOME" tmux
 
-- Symlinks tmux config to $HOME/.tmux.conf
+- Symlinks tmux config to $HOME/.tmux.conf.
+- `./stow-apply.sh macos` also installs tmux with Homebrew when needed, clones
+  TPM, and installs the plugins declared in the configuration.
 - For Linux, macOS, or any system using tmux
 
 ## Notes
@@ -48,11 +50,10 @@ tmux attach -t my-project
 
 ## Managing workflow inside sessions
 Command,Action
-Ctrl-a + I (Capital i),Install new plugins (do this now to ensure Catppuccin and others load).
+Ctrl-a + I (Capital i),Install newly declared plugins through TPM (the macOS bootstrap does this automatically).
 Ctrl-a + c,Create a new Window.
 Ctrl-a + n / p,Move to Next or Previous window.
 Ctrl-a + + / -,Split panes (based on your custom config).
 Ctrl-a + Ctrl-s,Save your session layout (via tmux-resurrect).
 Ctrl-a + Ctrl-r,Restore your sessions after a computer reboot.
-
 

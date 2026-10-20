@@ -305,6 +305,20 @@ if [ "$1" = "macos" ]; then
   else
     echo "tmux is already installed."
   fi
+
+  tpm_dir="$HOME/.tmux/plugins/tpm"
+  if [ ! -d "$tpm_dir" ]; then
+    if ! command -v git >/dev/null 2>&1; then
+      echo "Error: Git is required to install the tmux plugin manager." >&2
+      exit 2
+    fi
+
+    echo "Installing tmux plugin manager..."
+    git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
+  fi
+
+  echo "Installing tmux plugins..."
+  "$tpm_dir/bin/install_plugins"
 fi
 
 echo "Done."
