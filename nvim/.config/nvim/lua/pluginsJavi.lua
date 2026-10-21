@@ -92,44 +92,60 @@ require("lazy").setup({
 		branch = "main",
 		build = ":TSUpdate",
 		config = function()
-			require("nvim-treesitter").setup({
-				-- First 5 crucial to have
-				ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
-				auto_install = true, -- Automatically install missing parsers when entering buffer
-				highlight = {
-					enable = true,
-					additional_vim_regex_highlighting = false,
-				},
+			local treesitter = require("nvim-treesitter")
+			local parsers = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline" }
+			local installing = {}
 
-				incremental_selection = {
-					enable = true,
-					keymaps = {
-						init_selection = "<Leader>ss", -- selection start
-						node_incremental = "<Leader>si", -- selection increment
-						scope_incremental = "<Leader>sc", -- select scope
-						node_decremental = "<Leader>sd", -- decrease selection
-					},
-				},
+			treesitter.setup()
 
-				textobjects = {
-					select = {
-						enable = true,
-						lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-						keymaps = {
-							["af"] = "@function.outer",
-							["if"] = "@function.inner",
-							["ac"] = "@class.outer",
-							["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
-							["as"] = { query = "@scope", query_group = "locals", desc = "Select language scope" },
-						},
-						selection_modes = {
-							['@parameter.outer'] = 'v', -- charwise
-							['@function.outer'] = 'V', -- linewise
-							['@class.outer'] = '<c-v>', -- blockwise
-						},
-						include_surrounding_whitespace = true,
-					},
-				},
+			local function install_parsers(languages)
+				for _, language in ipairs(languages) do
+					installing[language] = true
+				end
+
+				treesitter.install(languages):await(function(err, success)
+					vim.schedule(function()
+						for _, language in ipairs(languages) do
+							installing[language] = nil
+						end
+
+						if err or not success then
+							vim.notify(
+								"Tree-sitter parser installation failed: " .. tostring(err or "unknown error"),
+								vim.log.levels.ERROR
+							)
+							return
+						end
+
+						for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+							if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) then
+								local filetype = vim.bo[buf].filetype
+								local language = vim.treesitter.language.get_lang(filetype)
+								if vim.tbl_contains(languages, language) then
+									vim.treesitter.start(buf, language)
+								end
+							end
+						end
+					end)
+				end)
+			end
+
+			install_parsers(parsers)
+
+			vim.api.nvim_create_autocmd("FileType", {
+				group = vim.api.nvim_create_augroup("UserTreesitter", { clear = true }),
+				callback = function(event)
+					local language = vim.treesitter.language.get_lang(event.match)
+					if not language then
+						return
+					end
+
+					if vim.tbl_contains(treesitter.get_installed(), language) then
+						vim.treesitter.start(event.buf, language)
+					elseif not installing[language] and vim.tbl_contains(treesitter.get_available(), language) then
+						install_parsers({ language })
+					end
+				end,
 			})
 		end,
 	},
@@ -439,6 +455,10 @@ require("lazy").setup({
 --			end
 		end,
 	},
+	{
+		"MeanderingProgrammer/render-markdown.nvim",
+		opts = { file_types = { "markdown", "Avante" } },
+	},
 	-- Avante: AI-powered inline edits and chat sidebar
 	{
 		"yetone/avante.nvim",
@@ -484,14 +504,10 @@ require("lazy").setup({
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"MunifTanjim/nui.nvim",
+			{ "ColinKennedy/mega.cmdparse", dependencies = { "ColinKennedy/mega.logging" } },
 			"nvim-telescope/telescope.nvim",
 			"hrsh7th/nvim-cmp",
 			"nvim-tree/nvim-web-devicons",
-			{
-				"MeanderingProgrammer/render-markdown.nvim",
-				opts = { file_types = { "markdown", "Avante" } },
-				ft = { "markdown", "Avante" },
-			},
 			{
 				"HakonHarnes/img-clip.nvim",
 				event = "VeryLazy",
