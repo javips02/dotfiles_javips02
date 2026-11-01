@@ -64,15 +64,15 @@ local terminal = "uwsm app -- ghostty"
 
 local fileManager = "uwsm app -- nautilus"
 
-local menu = "uwsm app -- qs -c noctalia-shell ipc call launcher toggle"
+local menu = "noctalia msg panel-toggle launcher"
 
 -- -I to show icons
 
 local browser = "uwsm app -- brave --password-store=gnome-libsecret"
 
-local powerMenu = "uwsm app -- qs -c noctalia-shell ipc call sessionMenu toggle"
+local powerMenu = "noctalia msg panel-toggle session"
 
-local lockScreen = "uwsm app -- qs -c noctalia-shell ipc call lockScreen lock"
+local lockScreen = "noctalia msg session lock"
 
 local obsidian = "uwsm app -- flatpak run --env=WAYLAND_DISPLAY=md.obsidian.Obsidian"
 
@@ -503,7 +503,7 @@ hl.bind(modAlt .. " + " .. "C", hl.dsp.exec_cmd("hyprshot -m output"))
 
 -- bind = $mainMod, W, exec, killall waybar &#gjs &
 
-hl.bind(modShift .. " + " .. "W", hl.dsp.exec_cmd("uwsm app -- qs -c noctalia-shell"))
+hl.bind(modShift .. " + " .. "W", hl.dsp.exec_cmd("noctalia --daemon"))
 
 -- Switch workspaces with mainMod + [0-9]
 
@@ -581,7 +581,7 @@ hl.bind(mainMod .. " + " .. "Tab", hl.dsp.group.next({ forward = false }))
 
 -- Autostart
 hl.on("hyprland.start", function()
-    hl.exec_cmd("uwsm app -- qs -c noctalia-shell")
+    hl.exec_cmd("uwsm app -- noctalia --daemon")
     hl.exec_cmd("hyprctl keyword misc:allow_session_lock_restore 1")
     hl.exec_cmd("uwsm app -- hypridle")
 end)

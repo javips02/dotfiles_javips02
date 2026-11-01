@@ -6,10 +6,10 @@
 
 hl.config({
     general = {
-        lock_cmd = "qs -c noctalia-shell ipc call lockScreen lock",
-        before_sleep_cmd = "qs -c noctalia-shell ipc call lockScreen lock",
+        lock_cmd = "noctalia msg session lock",
+        before_sleep_cmd = "noctalia msg session lock",
         -- lock before suspend.
-        after_sleep_cmd = "hyprctl dispatch dpms on",
+        after_sleep_cmd = "~/.config/hypr/scripts/handle_lid.sh unlock",
         -- to avoid having to press a key twice to turn on the display.
     },
 })
@@ -30,7 +30,7 @@ hl.config({
     listener = {
         timeout = 600,
         -- 10min
-        on_timeout = "qs -c noctalia-shell ipc call lockScreen lock",
+        on_timeout = "noctalia msg session lock",
         -- lock screen when timeout has passed
     },
 })
