@@ -10,3 +10,6 @@ nvim/.config/nvim/lazy-lock.json
 # crush runtime dirs — database and logs are ephemeral
 crush/.config/crush/.crush/crush.db
 crush/.config/crush/.crush/logs/
+
+# Shell secrets (sourced from home dir, never committed)
+.shell-secrets

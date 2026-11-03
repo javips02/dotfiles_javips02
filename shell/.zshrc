@@ -1,6 +1,6 @@
 #Starship shell init script
 eval "$(starship init zsh)"
-eval "$(rbenv init - zsh)"
+#eval "$(rbenv init - zsh)"
 #Unizar
 alias v="nvim"
 alias hendrix="ssh a815877@hendrix-ssh.cps.unizar.es"
@@ -8,6 +8,11 @@ alias central='ssh a815877@central.cps.unizar.es'
 alias lab000="ssh a815877@lab000.cps.unizar.es"
 alias update="~/.dotfiles/shell/brew-cool-upgrade"
 alias lua="luajit"
+alias docker="podman"
+alias docker-compose="podman compose"
+alias claudio="claude --permission-mode bypassPermissions"
+alias copi="copilot --allow-all"
+
 #Variables de entorno PATH
 export JAVA_HOME="/opt/homebrew/Cellar/openjdk@21/21.0.7/"
 export PATH="/opt/homebrew/bin:$PATH"
@@ -17,6 +22,9 @@ export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/bin:$PATH"
 export PATH="/opt/homebrew/opt/perl/bin:$PATH"
 alias gem="/opt/homebrew/opt/ruby/bin/gem"
+# Source local secrets (not tracked by git)
+[ -f "$HOME/.shell-secrets" ] && source "$HOME/.shell-secrets"
+
 #Colores en terminal (para el man sobre todo)
 export LESS_TERMCAP_mb=$'\e[1;32m'
 export LESS_TERMCAP_md=$'\e[1;32m'
@@ -66,3 +74,11 @@ compinit
 
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 export PATH="$HOME/.local/bin:$PATH"
+
+# wiz — WizCLI wrapper (added by wizscan setup)
+alias wiz='bash /Users/perezja2/.wiz/wiz.sh'
+
+export PATH="/Users/perezja2/.wiz:$PATH"
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /Users/perezja2/Downloads/wizcli wizcli
