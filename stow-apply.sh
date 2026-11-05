@@ -251,6 +251,11 @@ for pkg in "${pkgs[@]}"; do
   fi
 done
 
+# --- Kitty installation and icon setup ---
+if [ "$1" = "macos" ] || [ "$1" = "linux" ]; then
+  bash "$SCRIPT_DIR/kitty-setup.sh" "$1"
+fi
+
 # --- Post-stow setup for macOS ---
 if [ "$1" = "macos" ]; then
   # Create ~/.local/bin if it doesn't exist

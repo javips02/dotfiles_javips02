@@ -32,6 +32,12 @@ This repository contains my modular, Stow-managed dotfiles for Linux and macOS s
    - Some packages (e.g., hyprsuite, wmmacos, bar, notifications, terminal, shell) manage multiple related configs at once.
    - Review each package's README for details and OS-specific notes.
 
+For guided setup, run `bash stow-apply.sh macos` or `bash stow-apply.sh linux`.
+Both install Kitty if needed and apply the Neue Azure icon from
+[k0nserv/kitty-icon](https://github.com/k0nserv/kitty-icon).
+See [terminal/README.md](terminal/README.md) for supported package managers,
+icon-only setup, and attribution.
+
 ## Adding New Configs
 - Create a new directory for the app or group.
 - Place config files inside the appropriate .config/ subfolder (or as dotfiles for $HOME).
